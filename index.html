@@ -1,163 +1,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Farewell Party 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farewell Party 2026</title>
 
-  <style>
-    body{
-      margin:0;
-      font-family:Arial, sans-serif;
-      background:linear-gradient(135deg,#1e3c72,#2a5298);
-      color:white;
-      text-align:center;
-    }
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  color:white;
+  text-align:center;
+}
 
-    h1{
-      margin-top:30px;
-    }
+h1{
+  margin-top:20px;
+  font-size:22px;
+}
 
-    .form-box{
-      background:#111;
-      width:320px;
-      margin:30px auto;
-      padding:20px;
-      border-radius:15px;
-      box-shadow:0 0 20px rgba(0,0,0,0.6);
-    }
+.form-box{
+  background:#111;
+  width:90%;
+  max-width:320px;
+  margin:20px auto;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 0 20px rgba(0,0,0,0.6);
+}
 
-    input,select,button{
-      width:100%;
-      padding:10px;
-      margin:8px 0;
-      border-radius:8px;
-      border:none;
-      font-size:15px;
-    }
+input,select,button{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border-radius:8px;
+  border:none;
+  font-size:15px;
+}
 
-    button{
-      background:orange;
-      font-weight:bold;
-      cursor:pointer;
-    }
+button{
+  background:orange;
+  font-weight:bold;
+  cursor:pointer;
+}
 
-    #successMessage{
-      display:none;
-      font-size:20px;
-      margin-top:20px;
-      animation:fadeIn 2s ease-in-out;
-    }
+/* Animation Message */
+#successMessage{
+  display:none;
+  font-size:20px;
+  margin-top:30px;
+  animation:fadeIn 2s ease-in-out;
+}
 
-    @keyframes fadeIn{
-      from{opacity:0; transform:translateY(20px);}
-      to{opacity:1; transform:translateY(0);}
-    }
-  </style>
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(30px);}
+  to{opacity:1; transform:translateY(0);}
+}
+</style>
 </head>
 
 <body>
 
 <h1>🎉 Farewell Party 2026 🎉</h1>
 
-<div class="form-box">
-  <input type="text" id="name" placeholder="Name" required>
-  <input type="text" id="roll" placeholder="Roll Number" required>
+<div id="formBox" class="form-box">
 
-  <select id="course">
-    <option>FYBCA</option>
-    <option>SYBCA</option>
-    <option>TYBCA</option>
-    <option>FYBBA</option>
-    <option>SYBBA</option>
-    <option>TYBBA</option>
-    <option>FYBCOM</option>
-    <option>SYBCOM</option>
-    <option>TYBCOM</option>
-    
-  
-  </select>
+<input type="text" id="name" placeholder="Name">
+<input type="text" id="roll" placeholder="Roll Number">
 
-  <input type="email" id="email" placeholder="Gmail" required>
+<select id="course">
+<option>FYBCA</option>
+<option>SYBCA</option>
+<option>TYBCA</option>
 
-  <!-- ✅ WhatsApp Number Added -->
-  <input type="tel" id="whatsapp" placeholder="WhatsApp Number" required>
+<option>FYBCOM</option>
+<option>SYBCOM</option>
+<option>TYBCOM</option>
 
-  <select id="gender">
-    <option>Male</option>
-    <option>Female</option>
-  </select>
+<option>FYBBA</option>
+<option>SYBBA</option>
+<option>TYBBA</option>
+</select>
 
-  <input type="text" value="2026" readonly>
+<input type="email" id="email" placeholder="Gmail">
+<input type="tel" id="whatsapp" placeholder="WhatsApp Number">
 
-  <button onclick="register()">Register Now</button>
+<select id="gender">
+<option>Male</option>
+<option>Female</option>
+</select>
+
+<input type="text" value="2026" readonly>
+
+<button onclick="register()">Register Now</button>
+
 </div>
 
 <div id="successMessage">
-  ✅ Registration Completed  
-  <br>We invite you to be part of the Farewell Party 2026 and celebrate the journey together."
-  firewell Team🎉
+✅ Registration Completed  
+<br>
+Your registration has been successfully completed.
+We invite you to be part of the Farewell Party 2026 and celebrate the journey together."
+firewell Team
+Thank you  
+Farewell Team 🎉
 </div>
 
-<!-- Sound -->
-<audio id="successSound" src="success.mp3"></audio>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
-
 <script>
-  var firebaseConfig = {
-    apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
-    authDomain: "party-4f9f7.firebaseapp.com",
-    databaseURL: "https://party-4f9f7-default-rtdb.firebaseio.com",
-    projectId: "party-4f9f7",
-    storageBucket: "party-4f9f7.firebasestorage.app",
-    messagingSenderId: "615273128511",
-    appId: "1:615273128511:web:d99127fa938f13658c4e8a",
-    measurementId: "G-PTHBW73FDW"
-  };
+function playSound(){
+  const audio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAAAA/////wAAAP///wAAAP///wAAAP///wAAAP///wAAAP///wAA");
+  audio.play();
+}
 
-  firebase.initializeApp(firebaseConfig);
-  var database = firebase.database();
+function register(){
 
-  emailjs.init("1TcxHj09QPoXyiJkM");
+var name=document.getElementById("name").value;
+var roll=document.getElementById("roll").value;
+var email=document.getElementById("email").value;
 
-  function register(){
+if(name=="" || roll=="" || email==""){
+alert("Please fill all fields");
+return;
+}
 
-    var name = document.getElementById("name").value;
-    var roll = document.getElementById("roll").value;
-    var course = document.getElementById("course").value;
-    var email = document.getElementById("email").value;
-    var whatsapp = document.getElementById("whatsapp").value;
-    var gender = document.getElementById("gender").value;
+/* Form hide */
+document.getElementById("formBox").style.display="none";
 
-    if(name=="" || roll=="" || email=="" || whatsapp==""){
-      alert("Please fill all fields");
-      return;
-    }
+/* Message show */
+document.getElementById("successMessage").style.display="block";
 
-    // Save to Firebase
-    database.ref("students").push({
-      name:name,
-      roll:roll,
-      course:course,
-      email:email,
-      whatsapp:whatsapp,
-      gender:gender
-    });
+/* Sound play */
+playSound();
 
-    // Send Email
-    emailjs.send("service_u9fxtdh","lw87uhg",{
-      to_name:name,
-      to_email:email,
-      message:"You are invited to Farewell Party 2026 🎉"
-    });
-
-    document.getElementById("successMessage").style.display="block";
-    document.getElementById("successSound").play();
-  }
+}
 </script>
 
 </body>
