@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html>
 <head>
   <title>Farewell Party 2026</title>
@@ -66,15 +66,20 @@
     <option>FYBCA</option>
     <option>SYBCA</option>
     <option>TYBCA</option>
-    option>FYBBA</option>
+    <option>FYBBA</option>
     <option>SYBBA</option>
     <option>TYBBA</option>
-    option>FYBCOM</option>
+    <option>FYBCOM</option>
     <option>SYBCOM</option>
-    <option>TYBCOM/option>
+    <option>TYBCOM</option>
+    
+  
   </select>
 
   <input type="email" id="email" placeholder="Gmail" required>
+
+  <!-- ✅ WhatsApp Number Added -->
+  <input type="tel" id="whatsapp" placeholder="WhatsApp Number" required>
 
   <select id="gender">
     <option>Male</option>
@@ -88,8 +93,8 @@
 
 <div id="successMessage">
   ✅ Registration Completed  
-  <br>We invite you to be part of the Farewell Party 2026 and celebrate the journey together.
-  Farewell Team"🎉
+  <br>We invite you to be part of the Farewell Party 2026 and celebrate the journey together."
+  firewell Team🎉
 </div>
 
 <!-- Sound -->
@@ -103,7 +108,6 @@
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
 
 <script>
-  // Firebase Config
   var firebaseConfig = {
     apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
     authDomain: "party-4f9f7.firebaseapp.com",
@@ -118,7 +122,6 @@
   firebase.initializeApp(firebaseConfig);
   var database = firebase.database();
 
-  // EmailJS init
   emailjs.init("1TcxHj09QPoXyiJkM");
 
   function register(){
@@ -127,9 +130,10 @@
     var roll = document.getElementById("roll").value;
     var course = document.getElementById("course").value;
     var email = document.getElementById("email").value;
+    var whatsapp = document.getElementById("whatsapp").value;
     var gender = document.getElementById("gender").value;
 
-    if(name=="" || roll=="" || email==""){
+    if(name=="" || roll=="" || email=="" || whatsapp==""){
       alert("Please fill all fields");
       return;
     }
@@ -140,6 +144,7 @@
       roll:roll,
       course:course,
       email:email,
+      whatsapp:whatsapp,
       gender:gender
     });
 
@@ -150,14 +155,10 @@
       message:"You are invited to Farewell Party 2026 🎉"
     });
 
-    // Show animation
     document.getElementById("successMessage").style.display="block";
-
-    // Play sound
     document.getElementById("successSound").play();
   }
 </script>
 
 </body>
 </html>
-
