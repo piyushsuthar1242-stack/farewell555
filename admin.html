@@ -15,6 +15,48 @@ background:linear-gradient(135deg,#141e30,#243b55);
 color:white;
 }
 
+/* LOGIN BOX */
+#loginBox{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.loginCard{
+background:rgba(0,0,0,0.4);
+padding:30px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+width:90%;
+max-width:320px;
+}
+
+.loginCard input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:8px;
+}
+
+.loginCard button{
+padding:12px;
+width:100%;
+border:none;
+border-radius:8px;
+background:#00c6ff;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+/* ADMIN PANEL */
+#adminPanel{
+display:none;
+}
+
 /* HEADER */
 .header{
 padding:15px;
@@ -22,7 +64,6 @@ text-align:center;
 font-size:22px;
 font-weight:bold;
 background:rgba(0,0,0,0.3);
-backdrop-filter:blur(10px);
 }
 
 /* MAIN BOX */
@@ -86,10 +127,6 @@ text-align:center;
 border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
-tr:hover{
-background:rgba(255,255,255,0.05);
-}
-
 .deleteBtn{
 background:#ff4b5c;
 border:none;
@@ -100,14 +137,24 @@ cursor:pointer;
 }
 
 @media(max-width:600px){
-.controls{
-flex-direction:column;
-}
+.controls{flex-direction:column;}
 }
 </style>
 </head>
 
 <body>
+
+<!-- LOGIN -->
+<div id="loginBox">
+<div class="loginCard">
+<h2>Admin Login</h2>
+<input type="password" id="password" placeholder="Enter Password">
+<button onclick="login()">Login</button>
+</div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
 
 <div class="header">Student Admin Dashboard</div>
 
@@ -151,10 +198,24 @@ Total Students: <span id="totalCount">0</span>
 </table>
 
 </div>
+</div>
 
 <script>
 
-/* FIREBASE CONFIG */
+/* PASSWORD */
+const ADMIN_PASSWORD = "admin123";
+
+function login(){
+let pass=document.getElementById("password").value;
+if(pass===ADMIN_PASSWORD){
+document.getElementById("loginBox").style.display="none";
+document.getElementById("adminPanel").style.display="block";
+}else{
+alert("Wrong Password");
+}
+}
+
+/* FIREBASE */
 const firebaseConfig = {
 apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
 authDomain: "party-4f9f7.firebaseapp.com",
@@ -169,7 +230,6 @@ const db = firebase.firestore();
 
 let allData=[];
 
-/* LOAD DATA */
 db.collection("students").onSnapshot(snapshot=>{
 allData=[];
 snapshot.forEach(doc=>{
@@ -181,7 +241,6 @@ renderTable(allData);
 updateTotal(allData);
 });
 
-/* TABLE */
 function renderTable(data){
 let html="";
 data.forEach(d=>{
@@ -198,14 +257,12 @@ html+=`
 document.getElementById("tableBody").innerHTML=html;
 }
 
-/* DELETE */
 function deleteStudent(id){
 if(confirm("Delete student?")){
 db.collection("students").doc(id).delete();
 }
 }
 
-/* FILTER */
 function filterData(){
 let search=document.getElementById("search").value.toLowerCase();
 let cls=document.getElementById("classFilter").value;
@@ -220,26 +277,22 @@ renderTable(filtered);
 updateTotal(filtered);
 }
 
-/* TOTAL */
 function updateTotal(data){
 document.getElementById("totalCount").innerText=data.length;
 }
 
-/* EXCEL */
 function exportExcel(){
 let csv="Name,Roll,Class,Email,Phone\n";
 allData.forEach(d=>{
 csv+=`${d.name},${d.roll},${d.class},${d.email},${d.phone}\n`;
 });
-let blob=new Blob([csv],{type:"text/csv"});
-let url=window.URL.createObjectURL(blob);
+let blob=new Blob([csv]);
 let a=document.createElement("a");
-a.href=url;
+a.href=URL.createObjectURL(blob);
 a.download="students.csv";
 a.click();
 }
 
 </script>
-
 </body>
 </html>
