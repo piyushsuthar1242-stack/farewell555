@@ -1,32 +1,101 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<style>
+body{
+font-family:Arial;
+margin:0;
+background:#1e3c72;
+color:white;
+text-align:center;
+}
+
+.container{
+width:95%;
+max-width:800px;
+margin:auto;
+margin-top:20px;
+}
+
+select{
+padding:10px;
+border-radius:8px;
+border:none;
+margin:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+color:black;
+border-radius:10px;
+overflow:hidden;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #ddd;
+font-size:14px;
+}
+
+th{
+background:#2a5298;
+color:white;
+}
+</style>
 </head>
 
 <body>
 
-<h2>Registered Students</h2>
+<h2>Farewell Party Admin Panel</h2>
 
-<table border="1" id="table">
+<div class="container">
+
+<label>Filter by Class:</label>
+<select id="classFilter" onchange="loadData()">
+<option value="All">All</option>
+<option>FYBCA</option>
+<option>SYBCA</option>
+<option>TYBCA</option>
+<option>FYBCOM</option>
+<option>SYBCOM</option>
+<option>TYBCOM</option>
+<option>FYBBA</option>
+<option>SYBBA</option>
+<option>TYBBA</option>
+</select>
+
+<h3>Total Students: <span id="total">0</span></h3>
+
+<table>
+<thead>
 <tr>
 <th>Name</th>
 <th>Roll</th>
 <th>Class</th>
 <th>Email</th>
 <th>Phone</th>
-<th>Gender</th>
 </tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+
 </table>
 
+</div>
+
 <script>
+
 var firebaseConfig = {
 apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
 authDomain: "party-4f9f7.firebaseapp.com",
-databaseURL: "https://party-4f9f7-default-rtdb.firebaseio.com",
 projectId: "party-4f9f7",
 storageBucket: "party-4f9f7.firebasestorage.app",
 messagingSenderId: "615273128511",
@@ -34,19 +103,48 @@ appId: "1:615273128511:web:d99127fa938f13658c4e8a"
 };
 
 firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
 
-firebase.database().ref("students").on("child_added",function(snapshot){
-var data=snapshot.val();
-var table=document.getElementById("table");
+function loadData(){
 
-var row=table.insertRow();
-row.insertCell(0).innerHTML=data.name;
-row.insertCell(1).innerHTML=data.roll;
-row.insertCell(2).innerHTML=data.class;
-row.insertCell(3).innerHTML=data.email;
-row.insertCell(4).innerHTML=data.phone;
-row.insertCell(5).innerHTML=data.gender;
+var filterClass = document.getElementById("classFilter").value;
+var tableBody = document.getElementById("tableBody");
+
+tableBody.innerHTML="";
+let count = 0;
+
+db.collection("students").get().then(snapshot => {
+
+snapshot.forEach(doc => {
+
+let data = doc.data();
+
+if(filterClass=="All" || data.class==filterClass){
+
+count++;
+
+tableBody.innerHTML += `
+<tr>
+<td>${data.name}</td>
+<td>${data.roll}</td>
+<td>${data.class}</td>
+<td>${data.email}</td>
+<td>${data.phone}</td>
+</tr>
+`;
+
+}
+
 });
+
+document.getElementById("total").innerText = count;
+
+});
+
+}
+
+loadData();
+
 </script>
 
 </body>
