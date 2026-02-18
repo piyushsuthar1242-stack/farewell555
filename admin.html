@@ -2,18 +2,18 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cyber Admin Panel</title>
+<title>Admin Dashboard</title>
 
 <style>
 
 body{
 margin:0;
-font-family:Arial, sans-serif;
-background:linear-gradient(135deg,#000428,#004e92);
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(120deg,#0f2027,#203a43,#2c5364);
 color:white;
 }
 
-/* LOGIN SCREEN */
+/* LOGIN */
 #loginBox{
 height:100vh;
 display:flex;
@@ -22,58 +22,65 @@ align-items:center;
 }
 
 .login-card{
-background:rgba(0,0,0,0.8);
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(15px);
 padding:30px;
-border-radius:15px;
-box-shadow:0 0 20px cyan;
+border-radius:20px;
 width:90%;
 max-width:350px;
 text-align:center;
+box-shadow:0 0 40px rgba(0,255,255,0.3);
 }
 
 .login-card input{
 width:100%;
 padding:12px;
-margin:10px 0;
+margin:12px 0;
 border:none;
-border-radius:8px;
+border-radius:10px;
 }
 
 .login-card button{
 width:100%;
 padding:12px;
-background:cyan;
+background:#00e5ff;
 border:none;
-border-radius:8px;
+border-radius:10px;
 font-weight:bold;
 cursor:pointer;
 }
 
-/* ADMIN PANEL */
+/* DASHBOARD */
 #adminPanel{
 display:none;
 padding:15px;
 }
 
-.panel{
+.dashboard{
 max-width:1200px;
 margin:auto;
-background:rgba(0,0,0,0.75);
+}
+
+.header{
+text-align:center;
+font-size:26px;
+margin-bottom:20px;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+margin-bottom:20px;
+}
+
+.card{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(10px);
 padding:20px;
 border-radius:15px;
-box-shadow:0 0 25px cyan;
-}
-
-.title{
 text-align:center;
-font-size:24px;
-margin-bottom:15px;
-}
-
-.total{
-text-align:center;
-margin-bottom:10px;
-font-size:18px;
+box-shadow:0 0 20px rgba(0,255,255,0.2);
 }
 
 .controls{
@@ -85,39 +92,44 @@ margin-bottom:15px;
 
 .controls input,
 .controls select{
-padding:10px;
-border-radius:8px;
-border:none;
 flex:1;
-min-width:150px;
+padding:12px;
+border:none;
+border-radius:10px;
 }
 
 .controls button{
-padding:10px 15px;
+padding:12px 15px;
 background:#00e5ff;
 border:none;
-border-radius:8px;
+border-radius:10px;
 font-weight:bold;
 cursor:pointer;
+}
+
+.table-container{
+overflow-x:auto;
+background:rgba(255,255,255,0.05);
+border-radius:15px;
+padding:10px;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
-background:#111;
-border-radius:10px;
-overflow:hidden;
+min-width:700px;
 }
 
 th{
 background:#00e5ff;
 padding:10px;
+color:black;
 }
 
 td{
 padding:10px;
-border-bottom:1px solid #333;
 text-align:center;
+border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
 .deleteBtn{
@@ -130,17 +142,15 @@ cursor:pointer;
 }
 
 canvas{
-background:#111;
-border-radius:10px;
-margin-bottom:15px;
+background:rgba(255,255,255,0.05);
+border-radius:15px;
+padding:10px;
+margin-bottom:20px;
 }
 
-@media(max-width:768px){
-.controls{
-flex-direction:column;
-}
-table{
-font-size:12px;
+@media(max-width:600px){
+.header{
+font-size:20px;
 }
 }
 
@@ -158,14 +168,17 @@ font-size:12px;
 </div>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- DASHBOARD -->
 <div id="adminPanel">
-<div class="panel">
+<div class="dashboard">
 
-<div class="title">Cyber Student Admin Panel</div>
+<div class="header">Student Management Dashboard</div>
 
-<div class="total">
-Total Students: <span id="totalCount">0</span>
+<div class="cards">
+<div class="card">
+<h3>Total Students</h3>
+<h2 id="totalCount">0</h2>
+</div>
 </div>
 
 <canvas id="chart"></canvas>
@@ -189,6 +202,7 @@ Total Students: <span id="totalCount">0</span>
 <button onclick="exportExcel()">Download Excel</button>
 </div>
 
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -202,6 +216,7 @@ Total Students: <span id="totalCount">0</span>
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
+</div>
 
 </div>
 </div>
@@ -212,29 +227,25 @@ Total Students: <span id="totalCount">0</span>
 
 <script>
 
-const ADMIN_PASSWORD = "admin123"; // 🔐 change password here
+const ADMIN_PASSWORD="admin123";
 
 function checkLogin(){
-let pass=document.getElementById("adminPass").value;
-if(pass===ADMIN_PASSWORD){
-document.getElementById("loginBox").style.display="none";
-document.getElementById("adminPanel").style.display="block";
+if(document.getElementById("adminPass").value===ADMIN_PASSWORD){
+loginBox.style.display="none";
+adminPanel.style.display="block";
 }else{
 alert("Wrong Password");
 }
 }
 
-const firebaseConfig = {
-apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
-authDomain: "party-4f9f7.firebaseapp.com",
-projectId: "party-4f9f7",
-storageBucket: "party-4f9f7.firebasestorage.app",
-messagingSenderId: "615273128511",
-appId: "1:615273128511:web:d99127fa938f13658c4e8a"
+const firebaseConfig={
+apiKey:"AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
+authDomain:"party-4f9f7.firebaseapp.com",
+projectId:"party-4f9f7"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db=firebase.firestore();
 
 let allData=[];
 let chart;
@@ -264,7 +275,7 @@ html+=`
 <td><button class="deleteBtn" onclick="deleteStudent('${d.id}')">Delete</button></td>
 </tr>`;
 });
-document.getElementById("tableBody").innerHTML=html;
+tableBody.innerHTML=html;
 }
 
 function deleteStudent(id){
@@ -274,16 +285,13 @@ db.collection("students").doc(id).delete();
 }
 
 function filterData(){
-let search=document.getElementById("search").value.toLowerCase();
-let cls=document.getElementById("classFilter").value;
-
-let filtered=allData.filter(d=>{
-return (
-d.name.toLowerCase().includes(search) &&
-(cls=="" || d.className==cls)
+let s=search.value.toLowerCase();
+let c=classFilter.value;
+let f=allData.filter(d=>
+d.name.toLowerCase().includes(s) &&
+(c==""||d.className==c)
 );
-});
-renderTable(filtered);
+renderTable(f);
 }
 
 function exportExcel(){
@@ -291,16 +299,15 @@ let csv="Name,Roll,Class,Email,Phone\n";
 allData.forEach(d=>{
 csv+=`${d.name},${d.roll},${d.className},${d.email},${d.phone}\n`;
 });
-let blob=new Blob([csv],{type:"text/csv"});
-let url=window.URL.createObjectURL(blob);
+let blob=new Blob([csv]);
 let a=document.createElement("a");
-a.href=url;
+a.href=URL.createObjectURL(blob);
 a.download="students.csv";
 a.click();
 }
 
-function updateTotal(data){
-document.getElementById("totalCount").innerText=data.length;
+function updateTotal(d){
+totalCount.innerText=d.length;
 }
 
 function updateChart(data){
@@ -308,15 +315,11 @@ let counts={};
 data.forEach(d=>{
 counts[d.className]=(counts[d.className]||0)+1;
 });
-
-let labels=Object.keys(counts);
-let values=Object.values(counts);
-
 if(chart) chart.destroy();
-
-chart=new Chart(document.getElementById("chart"),{
+chart=new Chart(chart=document.getElementById("chart"),{
 type:"bar",
-data:{labels:labels,datasets:[{data:values}]},
+data:{labels:Object.keys(counts),
+datasets:[{data:Object.values(counts)}]},
 options:{plugins:{legend:{display:false}}}
 });
 }
