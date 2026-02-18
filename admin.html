@@ -6,29 +6,143 @@
 
 <style>
 body{
-font-family:Arial;
-background:#111;
+margin:0;
+font-family:Arial, sans-serif;
+background:linear-gradient(135deg,#141e30,#243b55);
 color:white;
+}
+
+/* Login */
+#loginBox{
+max-width:300px;
+margin:120px auto;
+background:#1c1c1c;
 padding:20px;
+border-radius:10px;
+text-align:center;
+}
+
+input,select,button{
+padding:10px;
+border-radius:8px;
+border:none;
+margin:6px;
+font-size:14px;
+}
+
+button{
+background:#ff9800;
+color:white;
+cursor:pointer;
+}
+
+.container{
+display:none;
+max-width:1200px;
+margin:auto;
+padding:20px;
+}
+
+.cards{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:20px;
+}
+
+.card{
+flex:1;
+min-width:120px;
+background:#1c1c1c;
+padding:15px;
+border-radius:10px;
+text-align:center;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
+background:#1c1c1c;
+border-radius:10px;
+overflow:hidden;
+margin-top:15px;
 }
 
-th,td{
+th{
+background:#ff9800;
+padding:12px;
+}
+
+td{
 padding:10px;
-border:1px solid #444;
+border-bottom:1px solid #333;
 text-align:center;
+}
+
+.deleteBtn{
+background:#e53935;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+color:white;
+cursor:pointer;
+}
+
+.topbar{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin:10px 0;
+}
+
+.chartBox{
+background:#1c1c1c;
+padding:15px;
+border-radius:10px;
+margin-bottom:20px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Registered Students</h2>
-<h3>Total Students: <span id="total">0</span></h3>
+<!-- LOGIN -->
+<div id="loginBox">
+<h3>Admin Login</h3>
+<input type="password" id="pass" placeholder="Enter Password">
+<br>
+<button onclick="login()">Login</button>
+</div>
+
+<!-- PANEL -->
+<div class="container" id="panel">
+
+<h2>🎓 Student Dashboard</h2>
+
+<div class="cards" id="classCards"></div>
+
+<div class="chartBox">
+<canvas id="chart"></canvas>
+</div>
+
+<div class="topbar">
+<input type="text" id="search" placeholder="Search name" onkeyup="filterData()">
+
+<select id="classFilter" onchange="filterData()">
+<option value="">All Classes</option>
+<option>FYBCA</option>
+<option>SYBCA</option>
+<option>TYBCA</option>
+<option>FYBCOM</option>
+<option>SYBCOM</option>
+<option>TYBCOM</option>
+<option>FYBBA</option>
+<option>SYBBA</option>
+<option>TYBBA</option>
+</select>
+
+<button onclick="exportExcel()">Download Excel</button>
+</div>
 
 <table>
 <thead>
@@ -38,15 +152,31 @@ text-align:center;
 <th>Class</th>
 <th>Email</th>
 <th>Phone</th>
+<th>Action</th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
 
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+/* PASSWORD */
+function login(){
+let p=document.getElementById("pass").value;
+if(p==="admin123"){   // password change kar sakte ho
+document.getElementById("loginBox").style.display="none";
+document.getElementById("panel").style.display="block";
+}else{
+alert("Wrong Password");
+}
+}
+
+/* FIREBASE */
 const firebaseConfig = {
 apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
 authDomain: "party-4f9f7.firebaseapp.com",
@@ -59,14 +189,27 @@ appId: "1:615273128511:web:d99127fa938f13658c4e8a"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-db.collection("students").onSnapshot(snapshot=>{
-let html="";
-let count=0;
+let allData=[];
+let chart;
 
+db.collection("students").onSnapshot(snapshot=>{
+allData=[];
 snapshot.forEach(doc=>{
 let d=doc.data();
-count++;
+d.id=doc.id;
+allData.push(d);
+});
+renderTable(allData);
+updateCards(allData);
+updateChart(allData);
+});
 
+/* TABLE */
+function renderTable(data){
+data.sort((a,b)=>a.name.localeCompare(b.name));
+
+let html="";
+data.forEach(d=>{
 html+=`
 <tr>
 <td>${d.name}</td>
@@ -74,13 +217,92 @@ html+=`
 <td>${d.className}</td>
 <td>${d.email}</td>
 <td>${d.phone}</td>
-</tr>
-`;
+<td><button class="deleteBtn" onclick="deleteStudent('${d.id}')">Delete</button></td>
+</tr>`;
 });
 
 document.getElementById("tableBody").innerHTML=html;
-document.getElementById("total").innerText=count;
+}
+
+/* FILTER */
+function filterData(){
+let search=document.getElementById("search").value.toLowerCase();
+let classFilter=document.getElementById("classFilter").value;
+
+let filtered=allData.filter(d=>{
+return (
+d.name.toLowerCase().includes(search) &&
+(classFilter=="" || d.className==classFilter)
+);
 });
+
+renderTable(filtered);
+}
+
+/* DELETE */
+function deleteStudent(id){
+if(confirm("Delete student?")){
+db.collection("students").doc(id).delete();
+}
+}
+
+/* EXCEL */
+function exportExcel(){
+let csv="Name,Roll,Class,Email,Phone\n";
+allData.forEach(d=>{
+csv+=`${d.name},${d.roll},${d.className},${d.email},${d.phone}\n`;
+});
+
+let blob=new Blob([csv],{type:"text/csv"});
+let url=window.URL.createObjectURL(blob);
+let a=document.createElement("a");
+a.href=url;
+a.download="students.csv";
+a.click();
+}
+
+/* CLASS CARDS */
+function updateCards(data){
+let counts={};
+data.forEach(d=>{
+counts[d.className]=(counts[d.className]||0)+1;
+});
+
+let html="";
+for(let cls in counts){
+html+=`<div class="card"><h3>${cls}</h3><p>${counts[cls]} Students</p></div>`;
+}
+
+html+=`<div class="card"><h3>Total</h3><p>${data.length}</p></div>`;
+
+document.getElementById("classCards").innerHTML=html;
+}
+
+/* CHART */
+function updateChart(data){
+let counts={};
+
+data.forEach(d=>{
+counts[d.className]=(counts[d.className]||0)+1;
+});
+
+let labels=Object.keys(counts);
+let values=Object.values(counts);
+
+if(chart) chart.destroy();
+
+chart=new Chart(document.getElementById("chart"),{
+type:"bar",
+data:{
+labels:labels,
+datasets:[{data:values}]
+},
+options:{
+plugins:{legend:{display:false}},
+responsive:true
+}
+});
+}
 </script>
 
 </body>
