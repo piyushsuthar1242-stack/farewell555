@@ -1,192 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Farewell 2026 Admin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
 
-  <style>
-    body{
-      margin:0;
-      font-family:Arial;
-      background:#0f172a;
-      color:white;
-      padding:20px;
-    }
-
-    h1{text-align:center;}
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:20px;
-      background:white;
-      color:black;
-    }
-
-    th,td{
-      border:1px solid #ddd;
-      padding:8px;
-      text-align:center;
-    }
-
-    th{
-      background:orange;
-    }
-
-    button{
-      padding:6px 10px;
-      border:none;
-      border-radius:4px;
-      cursor:pointer;
-      margin:5px;
-    }
-
-    .deleteBtn{background:red;color:white;}
-    .excelBtn{background:green;color:white;}
-
-    .topbar{
-      display:flex;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      margin-top:15px;
-    }
-  </style>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 
 <body>
 
-<script>
-// Password Protection
-const pass = prompt("Enter Admin Password");
-if(pass !== "admin123"){
-  alert("Wrong Password");
-  location.reload();
-}
-</script>
+<h2>Registered Students</h2>
 
-<h1>Farewell 2026 Dashboard</h1>
-
-<div class="topbar">
-  <div>Total Students: <span id="count">0</span></div>
-
-  <!-- Class Filter -->
-  <select id="filterCourse">
-    <option value="all">All Classes</option>
-    <option value="FYBCA">FYBCA</option>
-    <option value="SYBCA">SYBCA</option>
-    <option value="TYBCA">TYBCA</option>
- <option value="FYBBA">FYBBA</option>
-    <option value="SYBBA">SYBBA</option>
-    <option value="TYBBA">TYBBA</option>
-   <option value="FYBCOM">FYBCOM</option>
-    <option value="SYBCOM">SYBCOM</option>
-    <option value="TYBCOM">TYBCOM</option>
-
-
-  </select>
-
-  <!-- Excel Download -->
-  <button class="excelBtn" onclick="downloadExcel()">Download Excel</button>
-</div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Roll</th>
-      <th>Course</th>
-      <th>Email</th>
-      <th>WhatsApp</th>
-      <th>Gender</th>
-      <th>Delete</th>
-    </tr>
-  </thead>
-  <tbody id="studentList"></tbody>
+<table border="1" id="table">
+<tr>
+<th>Name</th>
+<th>Roll</th>
+<th>Class</th>
+<th>Email</th>
+<th>Phone</th>
+<th>Gender</th>
+</tr>
 </table>
 
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-  getFirestore, 
-  collection, 
-  onSnapshot,
-  deleteDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
-  authDomain: "party-4f9f7.firebaseapp.com",
-  projectId: "party-4f9f7",
-  storageBucket: "party-4f9f7.firebasestorage.app",
-  messagingSenderId: "615273128511",
-  appId: "1:615273128511:web:d99127fa938f13658c4e8a"
+<script>
+var firebaseConfig = {
+apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
+authDomain: "party-4f9f7.firebaseapp.com",
+databaseURL: "https://party-4f9f7-default-rtdb.firebaseio.com",
+projectId: "party-4f9f7",
+storageBucket: "party-4f9f7.firebasestorage.app",
+messagingSenderId: "615273128511",
+appId: "1:615273128511:web:d99127fa938f13658c4e8a"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
 
-const studentList = document.getElementById("studentList");
-const count = document.getElementById("count");
-const filterCourse = document.getElementById("filterCourse");
+firebase.database().ref("students").on("child_added",function(snapshot){
+var data=snapshot.val();
+var table=document.getElementById("table");
 
-let allData = [];
-
-onSnapshot(collection(db,"students"), (snapshot)=>{
-  allData = [];
-  snapshot.forEach((docSnap)=>{
-    allData.push({id:docSnap.id,...docSnap.data()});
-  });
-
-  count.innerText = allData.length;
-  renderTable();
+var row=table.insertRow();
+row.insertCell(0).innerHTML=data.name;
+row.insertCell(1).innerHTML=data.roll;
+row.insertCell(2).innerHTML=data.class;
+row.insertCell(3).innerHTML=data.email;
+row.insertCell(4).innerHTML=data.phone;
+row.insertCell(5).innerHTML=data.gender;
 });
-
-filterCourse.addEventListener("change", renderTable);
-
-function renderTable(){
-  const filter = filterCourse.value;
-  studentList.innerHTML="";
-
-  allData
-  .filter(s => filter==="all" || s.course===filter)
-  .forEach(data=>{
-    studentList.innerHTML += `
-      <tr>
-        <td>${data.name || ""}</td>
-        <td>${data.roll || ""}</td>
-        <td>${data.course || ""}</td>
-        <td>${data.email || ""}</td>
-        <td>${data.whatsapp || ""}</td>
-        <td>${data.gender || ""}</td>
-        <td>
-          <button class="deleteBtn" onclick="deleteStudent('${data.id}')">Delete</button>
-        </td>
-      </tr>
-    `;
-  });
-}
-
-window.deleteStudent = async (id)=>{
-  await deleteDoc(doc(db,"students",id));
-};
-
-// Excel Download
-window.downloadExcel = function(){
-  let csv = "Name,Roll,Course,Email,WhatsApp,Gender\n";
-
-  allData.forEach(d=>{
-    csv += `${d.name},${d.roll},${d.course},${d.email},${d.whatsapp},${d.gender}\n`;
-  });
-
-  const blob = new Blob([csv], {type:"text/csv"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "students.csv";
-  a.click();
-};
-
 </script>
 
 </body>
