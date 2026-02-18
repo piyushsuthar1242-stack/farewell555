@@ -13,38 +13,30 @@ color:white;
 text-align:center;
 }
 
-/* Form Box */
 .container{
-max-width:400px;
+max-width:350px;
 margin:40px auto;
-background:black;
+background:#000;
 padding:20px;
 border-radius:15px;
-box-shadow:0 0 20px rgba(0,0,0,0.5);
+box-shadow:0 0 15px rgba(0,0,0,0.5);
 }
 
-input,select{
+input,select,button{
 width:100%;
 padding:12px;
 margin:8px 0;
 border-radius:8px;
 border:none;
 font-size:16px;
-box-sizing:border-box;
 }
 
 button{
-width:100%;
-padding:12px;
 background:orange;
-border:none;
-border-radius:8px;
-font-size:18px;
 font-weight:bold;
 cursor:pointer;
 }
 
-/* Success Animation */
 #successScreen{
 display:none;
 position:fixed;
@@ -53,68 +45,50 @@ left:0;
 width:100%;
 height:100%;
 background:black;
+color:white;
 justify-content:center;
 align-items:center;
 flex-direction:column;
 padding:20px;
-box-sizing:border-box;
-}
-
-#successScreen h2{
-animation:fade 1s infinite alternate;
-}
-
-@keyframes fade{
-from{opacity:0.3;}
-to{opacity:1;}
-}
-
-@media(max-width:480px){
-.container{
-margin:20px;
-}
+text-align:center;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🎉 Farewell Party 2026 🎉</h1>
+<h2>🎉 Farewell Party 2026 🎉</h2>
 
 <div class="container" id="formBox">
-<form id="regForm">
 
 <input type="text" id="name" placeholder="Name" required>
 <input type="text" id="roll" placeholder="Roll Number" required>
 
-<select id="class" required>
-<option value="">Select Class</option>
+<select id="className">
 <option>FYBCA</option>
 <option>SYBCA</option>
 <option>TYBCA</option>
-<option>FYBBA</option>
-<option>SYBBA</option>
-<option>TYBBA</option>
 <option>FYBCOM</option>
 <option>SYBCOM</option>
 <option>TYBCOM</option>
+<option>FYBBA</option>
+<option>SYBBA</option>
+<option>TYBBA</option>
 </select>
 
 <input type="email" id="email" placeholder="Gmail" required>
 <input type="text" id="phone" placeholder="WhatsApp Number" required>
 
-<select id="gender" required>
+<select id="gender">
 <option>Male</option>
 <option>Female</option>
 </select>
 
 <input type="text" value="2026" readonly>
 
-<button type="submit">Register Now</button>
-</form>
+<button onclick="register()">Register Now</button>
 </div>
 
-<!-- Success Screen -->
 <div id="successScreen">
 <h2>🎉 Registration Completed 🎉</h2>
 <p>Thank You For Registration</p>
@@ -123,10 +97,9 @@ margin:20px;
 </div>
 
 <audio id="successSound">
-<source src="https://www.soundjay.com/buttons/sounds/button-3.mp3">
+<source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
 </audio>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
@@ -134,54 +107,70 @@ margin:20px;
 const firebaseConfig = {
 apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
 authDomain: "party-4f9f7.firebaseapp.com",
-projectId: "party-4f9f7"
+projectId: "party-4f9f7",
+storageBucket: "party-4f9f7.firebasestorage.app",
+messagingSenderId: "615273128511",
+appId: "1:615273128511:web:d99127fa938f13658c4e8a"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-document.getElementById("regForm").addEventListener("submit", async function(e){
-e.preventDefault();
+function register(){
 
-let name=document.getElementById("name").value;
-let roll=document.getElementById("roll").value;
-let className=document.getElementById("class").value;
-let email=document.getElementById("email").value;
-let phone=document.getElementById("phone").value;
+let name=document.getElementById("name").value.trim();
+let roll=document.getElementById("roll").value.trim();
+let className=document.getElementById("className").value;
+let email=document.getElementById("email").value.trim();
+let phone=document.getElementById("phone").value.trim();
 let gender=document.getElementById("gender").value;
 
-// Duplicate check
-let snapshot = await db.collection("students")
-.where("email","==",email).get();
-
-let snapshot2 = await db.collection("students")
-.where("phone","==",phone).get();
-
-if(!snapshot.empty || !snapshot2.empty){
-alert("Email or Number already registered");
+if(!name || !roll || !email || !phone){
+alert("All fields required");
 return;
 }
 
-// Save Data
-await db.collection("students").add({
-name,roll,className,email,phone,gender,time:new Date()
-});
+// duplicate check
+db.collection("students")
+.where("email","==",email)
+.get()
+.then(snapshot=>{
+if(!snapshot.empty){
+alert("Email already registered");
+return;
+}
 
-// Show Animation
+db.collection("students")
+.where("phone","==",phone)
+.get()
+.then(snapshot2=>{
+if(!snapshot2.empty){
+alert("Number already registered");
+return;
+}
+
+// save data
+db.collection("students").add({
+name:name,
+roll:roll,
+className:className,
+email:email,
+phone:phone,
+gender:gender,
+time:Date.now()
+}).then(()=>{
+
 document.getElementById("formBox").style.display="none";
-let success=document.getElementById("successScreen");
-success.style.display="flex";
+document.getElementById("successScreen").style.display="flex";
 
-document.getElementById("successSound").play();
-
-// Hide after 8 sec
-setTimeout(()=>{
-success.style.display="none";
-document.getElementById("formBox").style.display="block";
-document.getElementById("regForm").reset();
-},8000);
+let sound=document.getElementById("successSound");
+sound.currentTime=0;
+sound.play().catch(()=>{});
 
 });
+});
+});
+}
 </script>
 
 </body>
