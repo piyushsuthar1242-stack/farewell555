@@ -2,237 +2,161 @@
 <html>
 <head>
   <title>Farewell Party 2026</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:linear-gradient(135deg,#1e3c72,#2a5298);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
+  <style>
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      background:linear-gradient(135deg,#1e3c72,#2a5298);
+      color:white;
+      text-align:center;
+    }
 
-/* Form Box */
-.box{
-  background:#111;
-  padding:25px;
-  border-radius:12px;
-  width:320px;
-  box-shadow:0 0 20px rgba(0,0,0,0.5);
-  z-index:2;
-}
+    h1{
+      margin-top:30px;
+    }
 
-h2{
-  text-align:center;
-  color:white;
-}
+    .form-box{
+      background:#111;
+      width:320px;
+      margin:30px auto;
+      padding:20px;
+      border-radius:15px;
+      box-shadow:0 0 20px rgba(0,0,0,0.6);
+    }
 
-input,select{
-  width:100%;
-  padding:10px;
-  margin:8px 0;
-  border:none;
-  border-radius:6px;
-}
+    input,select,button{
+      width:100%;
+      padding:10px;
+      margin:8px 0;
+      border-radius:8px;
+      border:none;
+      font-size:15px;
+    }
 
-button{
-  width:100%;
-  padding:10px;
-  background:orange;
-  border:none;
-  border-radius:6px;
-  font-weight:bold;
-  cursor:pointer;
-}
+    button{
+      background:orange;
+      font-weight:bold;
+      cursor:pointer;
+    }
 
-/* Full Screen Success */
-.successScreen{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:#0f172a;
-  color:white;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  text-align:center;
-  z-index:10;
-}
+    #successMessage{
+      display:none;
+      font-size:20px;
+      margin-top:20px;
+      animation:fadeIn 2s ease-in-out;
+    }
 
-.successScreen h1{
-  font-size:28px;
-  margin-bottom:10px;
-  animation: pop 0.8s ease;
-}
-
-@keyframes pop{
-  from{transform:scale(0.5);opacity:0;}
-  to{transform:scale(1);opacity:1;}
-}
-
-/* Confetti */
-.confetti{
-  position:fixed;
-  width:10px;
-  height:10px;
-  top:-10px;
-  animation:fall 3s linear forwards;
-}
-
-@keyframes fall{
-  to{
-    transform:translateY(100vh) rotate(720deg);
-    opacity:0;
-  }
-}
-</style>
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(20px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="box" id="formBox">
-  <h2>🎉 Farewell Party 2026</h2>
+<h1>🎉 Farewell Party 2026 🎉</h1>
 
-  <form id="form">
-    <input type="text" id="name" placeholder="Name" required>
-    <input type="text" id="roll" placeholder="Roll Number" required>
+<div class="form-box">
+  <input type="text" id="name" placeholder="Name" required>
+  <input type="text" id="roll" placeholder="Roll Number" required>
 
-    <select id="course" required>
-      <option value="">Select Course</option>
-      <option>FYBCA</option>
-      <option>SYBCA</option>
-      <option>TYBCA</option>
-      <option>FYBBA</option>
-      <option>SYBBA</option>
-      <option>TYBBA</option>
-      <option>FYBCOM</option>
-      <option>SYBCOM</option>
-      <option>TYBCOM</option>
-    </select>
+  <select id="course">
+    <option>FYBCA</option>
+    <option>SYBCA</option>
+    <option>TYBCA</option>
+    option>FYBBA</option>
+    <option>SYBBA</option>
+    <option>TYBBA</option>
+    option>FYBCOM</option>
+    <option>SYBCOM</option>
+    <option>TYBCOM/option>
+  </select>
 
-    <input type="email" id="email" placeholder="Gmail" required>
-    <input type="tel" id="whatsapp" placeholder="WhatsApp Number" required>
+  <input type="email" id="email" placeholder="Gmail" required>
 
-    <select id="gender" required>
-      <option value="">Select Gender</option>
-      <option>Male</option>
-      <option>Female</option>
-    </select>
+  <select id="gender">
+    <option>Male</option>
+    <option>Female</option>
+  </select>
 
-    <button type="submit" id="submitBtn">Register Now</button>
-  </form>
+  <input type="text" value="2026" readonly>
+
+  <button onclick="register()">Register Now</button>
 </div>
 
-<!-- Success Screen -->
-<div id="successScreen" class="successScreen">
-  <h1>Thank you for registration 🎉</h1>
-  <p>We invite you to be part of the Farewell Party 2026 and celebrate the journey together
-    Farewell Team."</p>
-  <p>Redirecting...</p>
+<div id="successMessage">
+  ✅ Registration Completed  
+  <br>We invite you to be part of the Farewell Party 2026 and celebrate the journey together.
+  Farewell Team"🎉
 </div>
 
-<!-- Optional Sound -->
-<audio id="successSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+<!-- Sound -->
+<audio id="successSound" src="success.mp3"></audio>
 
-<script type="module">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  query, 
-  where, 
-  getDocs 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
-  authDomain: "party-4f9f7.firebaseapp.com",
-  projectId: "party-4f9f7",
-  storageBucket: "party-4f9f7.firebasestorage.app",
-  messagingSenderId: "615273128511",
-  appId: "1:615273128511:web:d99127fa938f13658c4e8a"
-};
+<script>
+  // Firebase Config
+  var firebaseConfig = {
+    apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
+    authDomain: "party-4f9f7.firebaseapp.com",
+    databaseURL: "https://party-4f9f7-default-rtdb.firebaseio.com",
+    projectId: "party-4f9f7",
+    storageBucket: "party-4f9f7.firebasestorage.app",
+    messagingSenderId: "615273128511",
+    appId: "1:615273128511:web:d99127fa938f13658c4e8a",
+    measurementId: "G-PTHBW73FDW"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+  firebase.initializeApp(firebaseConfig);
+  var database = firebase.database();
 
-const form = document.getElementById("form");
-const submitBtn = document.getElementById("submitBtn");
-const successScreen = document.getElementById("successScreen");
-const sound = document.getElementById("successSound");
+  // EmailJS init
+  emailjs.init("1TcxHj09QPoXyiJkM");
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+  function register(){
 
-  submitBtn.innerText="Submitting...";
-  submitBtn.disabled=true;
+    var name = document.getElementById("name").value;
+    var roll = document.getElementById("roll").value;
+    var course = document.getElementById("course").value;
+    var email = document.getElementById("email").value;
+    var gender = document.getElementById("gender").value;
 
-  const name = document.getElementById("name").value;
-  const roll = document.getElementById("roll").value;
-  const course = document.getElementById("course").value;
-  const email = document.getElementById("email").value;
-  const whatsapp = document.getElementById("whatsapp").value;
-  const gender = document.getElementById("gender").value;
+    if(name=="" || roll=="" || email==""){
+      alert("Please fill all fields");
+      return;
+    }
 
-  const emailCheck = await getDocs(query(collection(db,"students"), where("email","==",email)));
-  if(!emailCheck.empty){
-    alert("Gmail already registered");
-    submitBtn.innerText="Register Now";
-    submitBtn.disabled=false;
-    return;
+    // Save to Firebase
+    database.ref("students").push({
+      name:name,
+      roll:roll,
+      course:course,
+      email:email,
+      gender:gender
+    });
+
+    // Send Email
+    emailjs.send("service_u9fxtdh","lw87uhg",{
+      to_name:name,
+      to_email:email,
+      message:"You are invited to Farewell Party 2026 🎉"
+    });
+
+    // Show animation
+    document.getElementById("successMessage").style.display="block";
+
+    // Play sound
+    document.getElementById("successSound").play();
   }
-
-  const mobileCheck = await getDocs(query(collection(db,"students"), where("whatsapp","==",whatsapp)));
-  if(!mobileCheck.empty){
-    alert("WhatsApp already registered");
-    submitBtn.innerText="Register Now";
-    submitBtn.disabled=false;
-    return;
-  }
-
-  await addDoc(collection(db,"students"),{
-    name,roll,course,email,whatsapp,gender,
-    created:new Date()
-  });
-
-  // Show success screen
-  successScreen.style.display="flex";
-  sound.play();
-  createConfetti();
-
-  // Redirect after 5 sec
-  setTimeout(()=>{
-    location.reload();
-  },5000);
-});
-
-
-function createConfetti(){
-  for(let i=0;i<40;i++){
-    const c=document.createElement("div");
-    c.classList.add("confetti");
-    c.style.left=Math.random()*100+"vw";
-    c.style.backgroundColor=
-      ["red","yellow","blue","green","orange"][Math.floor(Math.random()*5)];
-    c.style.animationDuration=(Math.random()*2+2)+"s";
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),3000);
-  }
-}
-
 </script>
 
 </body>
 </html>
-
-
-
-
