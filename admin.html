@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Admin Dashboard</title>
+<title>Admin Dashboard</title>
 
 <style>
 body{
@@ -11,7 +11,6 @@ body{
   background:linear-gradient(135deg,#1e3c72,#2a5298);
   color:white;
 }
-
 .container{padding:15px; display:none;}
 h2{text-align:center;}
 
@@ -35,8 +34,6 @@ table{
   border-collapse:collapse;
   background:white;
   color:black;
-  border-radius:10px;
-  overflow:hidden;
 }
 
 th,td{
@@ -47,14 +44,7 @@ th,td{
 
 th{background:#2a5298;color:white;}
 
-button{
-  padding:6px 10px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.deleteBtn{background:red;color:white;}
+.deleteBtn{background:red;color:white;border:none;padding:5px 8px;border-radius:5px;}
 .excelBtn{
   background:#00c6ff;
   color:white;
@@ -62,6 +52,8 @@ button{
   width:100%;
   padding:10px;
   font-size:16px;
+  border:none;
+  border-radius:6px;
 }
 
 .login-box{
@@ -112,6 +104,7 @@ button{
 
 </div>
 
+<!-- ONLY MODULE SCRIPT (IMPORTANT FIX) -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -136,7 +129,7 @@ const table=document.getElementById("studentTable");
 const totalCount=document.getElementById("totalCount");
 const classCards=document.getElementById("classCards");
 
-const classes=["ALL","FYBCA","SYBCA","TYBCA","FYBBA","SYBBA","TYBBA","FYBCOM","SYBCOM","TYBCOM","BBA","BCOM"];
+const classes=["ALL","FYBCA","SYBCA","TYBCA","FYBBA","SYBBA","TYBBA","FYBCOM","SYBCOM","TYBCOM"];
 
 function createCards(){
  classCards.innerHTML="";
@@ -206,7 +199,6 @@ window.downloadExcel=function(){
  students.forEach(s=>{
    csv+=`${s.name},${s.className},${s.roll},${s.phone},${s.email}\n`;
  });
-
  let blob=new Blob([csv],{type:"text/csv"});
  let a=document.createElement("a");
  a.href=URL.createObjectURL(blob);
