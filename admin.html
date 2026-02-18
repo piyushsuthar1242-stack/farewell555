@@ -2,13 +2,13 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel</title>
+<title>Admin Dashboard</title>
 
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#1f1c2c,#928dab);
+font-family:Arial, sans-serif;
+background:#0f172a;
 color:white;
 }
 
@@ -16,10 +16,11 @@ color:white;
 #loginBox{
 max-width:320px;
 margin:120px auto;
-background:#222;
-padding:20px;
+background:#1e293b;
+padding:25px;
 border-radius:12px;
 text-align:center;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 
 input,select,button{
@@ -31,9 +32,10 @@ font-size:14px;
 }
 
 button{
-background:#ff9800;
+background:#38bdf8;
 color:white;
 cursor:pointer;
+font-weight:bold;
 }
 
 /* PANEL */
@@ -44,6 +46,30 @@ max-width:1200px;
 margin:auto;
 }
 
+h2{
+text-align:center;
+margin-bottom:20px;
+}
+
+/* CARDS */
+.cards{
+display:flex;
+flex-wrap:wrap;
+gap:12px;
+margin-bottom:20px;
+}
+
+.card{
+flex:1;
+min-width:140px;
+background:#1e293b;
+padding:15px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 4px 10px rgba(0,0,0,0.4);
+}
+
+/* TOPBAR */
 .topbar{
 display:flex;
 flex-wrap:wrap;
@@ -51,43 +77,33 @@ gap:10px;
 margin-bottom:15px;
 }
 
-.cards{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-bottom:15px;
-}
-
-.card{
-flex:1;
-min-width:120px;
-background:#222;
-padding:12px;
-border-radius:10px;
-text-align:center;
-}
-
+/* TABLE */
 table{
 width:100%;
 border-collapse:collapse;
-background:#222;
-border-radius:10px;
+background:#1e293b;
+border-radius:12px;
 overflow:hidden;
 }
 
 th{
-background:#ff9800;
-padding:10px;
+background:#38bdf8;
+padding:12px;
+color:black;
 }
 
 td{
 padding:10px;
-border-bottom:1px solid #444;
+border-bottom:1px solid #334155;
 text-align:center;
 }
 
+tr:hover{
+background:#334155;
+}
+
 .deleteBtn{
-background:#e53935;
+background:#ef4444;
 color:white;
 border:none;
 padding:6px 10px;
@@ -95,11 +111,19 @@ border-radius:6px;
 cursor:pointer;
 }
 
+/* CHART */
 .chartBox{
-background:#222;
+background:#1e293b;
 padding:15px;
-border-radius:10px;
-margin-bottom:15px;
+border-radius:12px;
+margin-bottom:20px;
+box-shadow:0 4px 10px rgba(0,0,0,0.4);
+}
+
+@media(max-width:600px){
+.topbar{
+flex-direction:column;
+}
 }
 </style>
 </head>
@@ -117,7 +141,7 @@ margin-bottom:15px;
 <!-- PANEL -->
 <div id="panel">
 
-<h2>Student Dashboard</h2>
+<h2>🎓 Student Dashboard</h2>
 
 <div class="cards" id="cards"></div>
 
@@ -193,7 +217,6 @@ const db = firebase.firestore();
 let allData=[];
 let chart;
 
-/* REALTIME DATA */
 db.collection("students").onSnapshot(snapshot=>{
 allData=[];
 snapshot.forEach(doc=>{
