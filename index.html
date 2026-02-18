@@ -5,46 +5,50 @@
 <title>Farewell Party 2026</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <style>
 body{
 margin:0;
 font-family:Arial;
 background:linear-gradient(135deg,#1e3c72,#2a5298);
-text-align:center;
 color:white;
+text-align:center;
 }
 
-.container{
-width:95%;
-max-width:360px;
-margin:20px auto;
+.form-box{
 background:#111;
 padding:20px;
+margin:20px auto;
 border-radius:15px;
-box-sizing:border-box;
+width:90%;
+max-width:400px;
 }
 
 input,select,button{
 width:100%;
 padding:12px;
 margin:8px 0;
-border-radius:10px;
+border-radius:8px;
 border:none;
-box-sizing:border-box;
+font-size:14px;
 }
 
 button{
 background:orange;
 font-weight:bold;
-font-size:16px;
 }
 
 #success{
 display:none;
-margin-top:20px;
 font-size:18px;
+margin-top:20px;
+animation:fade 1s infinite alternate;
+}
+
+@keyframes fade{
+from{opacity:0.3}
+to{opacity:1}
 }
 </style>
 </head>
@@ -53,10 +57,10 @@ font-size:18px;
 
 <h2>🎉 Farewell Party 2026 🎉</h2>
 
-<div id="formBox" class="container">
+<div id="formArea" class="form-box">
 
-<input id="name" placeholder="Name" required>
-<input id="roll" placeholder="Roll Number" required>
+<input id="name" placeholder="Name">
+<input id="roll" placeholder="Roll Number">
 
 <select id="class">
 <option>FYBCA</option>
@@ -70,33 +74,32 @@ font-size:18px;
 <option>TYBBA</option>
 </select>
 
-<input id="email" placeholder="Gmail" required>
-<input id="phone" placeholder="WhatsApp Number" required>
+<input id="email" placeholder="Email">
+<input id="phone" placeholder="WhatsApp Number">
 
 <select id="gender">
 <option>Male</option>
 <option>Female</option>
 </select>
 
-<input value="2026" readonly>
+<input id="year" value="2026">
 
 <button onclick="register()">Register Now</button>
+
 </div>
 
 <div id="success">
-✅ Registration Completed  
-See you in Farewell Party 🎉
+✅ Registration Completed<br>
+We invite you to be part of the Farewell Party 2026 🎉
 </div>
 
-<audio id="sound">
-<source src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3">
-</audio>
+<audio id="sound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 
 <script>
+
 var firebaseConfig = {
 apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
 authDomain: "party-4f9f7.firebaseapp.com",
-databaseURL: "https://party-4f9f7-default-rtdb.firebaseio.com",
 projectId: "party-4f9f7",
 storageBucket: "party-4f9f7.firebasestorage.app",
 messagingSenderId: "615273128511",
@@ -104,39 +107,39 @@ appId: "1:615273128511:web:d99127fa938f13658c4e8a"
 };
 
 firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
 
 function register(){
 
-var name=document.getElementById("name").value;
-var roll=document.getElementById("roll").value;
-var cls=document.getElementById("class").value;
-var email=document.getElementById("email").value;
-var phone=document.getElementById("phone").value;
-var gender=document.getElementById("gender").value;
+var name = document.getElementById("name").value;
+var roll = document.getElementById("roll").value;
+var studentClass = document.getElementById("class").value;
+var email = document.getElementById("email").value;
+var phone = document.getElementById("phone").value;
+var gender = document.getElementById("gender").value;
+var year = document.getElementById("year").value;
 
-if(name=="" || roll=="" || email=="" || phone==""){
-alert("Please fill all fields");
-return;
-}
-
-firebase.database().ref("students").push({
+db.collection("students").add({
 name:name,
 roll:roll,
-class:cls,
+class:studentClass,
 email:email,
 phone:phone,
-gender:gender
+gender:gender,
+year:year
 }).then(function(){
 
-document.getElementById("formBox").style.display="none";
+document.getElementById("formArea").style.display="none";
 document.getElementById("success").style.display="block";
 document.getElementById("sound").play();
 
 setTimeout(function(){
-location.reload();
+document.getElementById("success").style.display="none";
+document.getElementById("formArea").style.display="block";
 },8000);
 
 });
+
 }
 </script>
 
