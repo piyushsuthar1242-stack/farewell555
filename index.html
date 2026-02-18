@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Farewell Party Registration</title>
+<title>Farewell Party 2026</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -15,26 +15,7 @@ background:linear-gradient(135deg,#1e3c72,#2a5298);
 color:white;
 }
 
-/* Animation Screen */
-#animationScreen{
-position:fixed;
-width:100%;
-height:100%;
-background:#000;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-padding:20px;
-box-sizing:border-box;
-}
-
-#animationScreen h1{
-font-size:22px;
-line-height:1.5;
-}
-
-/* Form */
+/* Form Box */
 .container{
 max-width:420px;
 margin:30px auto;
@@ -63,32 +44,38 @@ cursor:pointer;
 h2{
 text-align:center;
 }
+
+/* Animation Screen */
+#successScreen{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#000;
+color:white;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:20px;
+box-sizing:border-box;
+font-size:20px;
+line-height:1.6;
+}
 </style>
 </head>
 
 <body>
 
-<!-- Animation -->
-<div id="animationScreen">
-<h1>
-🎉 Farewell Party 2026 🎉<br><br>
-Thanks for your registration<br>
-We invite you to be part of the Farewell Party 2026 and celebrate the journey together."<br>
-  farewell Team
-</h1>
-
-<audio id="sound" autoplay>
-<source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
-</audio>
-
-</div>
-
 <!-- Registration Form -->
-<div class="container" id="formBox" style="display:none;">
-<h2>Registration</h2>
+<div class="container" id="formBox">
+<h2>🎉 Farewell Party Registration 🎉</h2>
 
-<input type="text" id="name" placeholder="Name" required>
-<input type="text" id="roll" placeholder="Roll Number" required>
+<input type="text" id="name" placeholder="Name">
+<input type="text" id="roll" placeholder="Roll Number">
 
 <select id="class">
 <option value="">Select Class</option>
@@ -103,8 +90,8 @@ We invite you to be part of the Farewell Party 2026 and celebrate the journey to
 <option>TYBBA</option>
 </select>
 
-<input type="email" id="email" placeholder="Gmail" required>
-<input type="text" id="phone" placeholder="WhatsApp Number" required>
+<input type="email" id="email" placeholder="Gmail">
+<input type="text" id="phone" placeholder="WhatsApp Number">
 
 <select id="gender">
 <option value="">Select Gender</option>
@@ -112,18 +99,24 @@ We invite you to be part of the Farewell Party 2026 and celebrate the journey to
 <option>Female</option>
 </select>
 
-<input type="text" id="year" value="2026" readonly>
+<input type="text" value="2026" readonly>
 
 <button onclick="register()">Register Now</button>
 
 </div>
 
+<!-- Success Animation -->
+<div id="successScreen">
+🎉 Registration Completed 🎉<br>
+Thank You For Registration<br>
+We invite you to be part of the Farewell Party 2026 and celebrate the journey together."<br>
+  Farewell Team
+<audio id="sound">
+<source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
+</audio>
+</div>
+
 <script>
-/* Animation 8 sec */
-setTimeout(()=>{
-document.getElementById("animationScreen").style.display="none";
-document.getElementById("formBox").style.display="block";
-},8000);
 
 /* Firebase Config */
 var firebaseConfig = {
@@ -147,27 +140,23 @@ let cls=document.getElementById("class").value;
 let email=document.getElementById("email").value.trim();
 let phone=document.getElementById("phone").value.trim();
 let gender=document.getElementById("gender").value;
-let year=document.getElementById("year").value;
 
-/* Validation */
+/* Empty Check */
 if(!name || !roll || !cls || !email || !phone || !gender){
 alert("Please fill all fields");
 return;
 }
 
-/* Duplicate Check */
-db.collection("students")
-.where("email","==",email)
-.get()
+/* Duplicate Email Check */
+db.collection("students").where("email","==",email).get()
 .then(snapshot=>{
 if(!snapshot.empty){
 alert("This Email already registered");
 return;
 }
 
-db.collection("students")
-.where("phone","==",phone)
-.get()
+/* Duplicate Phone Check */
+db.collection("students").where("phone","==",phone).get()
 .then(snapshot2=>{
 if(!snapshot2.empty){
 alert("This Number already registered");
@@ -182,10 +171,32 @@ class:cls,
 email:email,
 phone:phone,
 gender:gender,
-year:year
+year:"2026"
 }).then(()=>{
-alert("Registration Successful");
-document.querySelectorAll("input").forEach(i=>i.value="");
+
+/* Hide Form */
+document.getElementById("formBox").style.display="none";
+
+/* Show Animation */
+document.getElementById("successScreen").style.display="flex";
+
+/* Play Sound */
+document.getElementById("sound").play();
+
+/* After 8 sec */
+setTimeout(()=>{
+document.getElementById("successScreen").style.display="none";
+document.getElementById("formBox").style.display="block";
+
+/* Reset Form */
+document.querySelectorAll("#formBox input").forEach(i=>{
+if(i.type!="text" || i.readOnly==false) i.value="";
+});
+document.getElementById("class").value="";
+document.getElementById("gender").value="";
+
+},8000);
+
 });
 
 });
@@ -193,6 +204,7 @@ document.querySelectorAll("input").forEach(i=>i.value="");
 });
 
 }
+
 </script>
 
 </body>
