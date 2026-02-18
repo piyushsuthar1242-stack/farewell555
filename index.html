@@ -9,39 +9,42 @@
 
 <style>
 body{
-  margin:0;
-  font-family:Arial;
-  background:linear-gradient(135deg,#1e3c72,#2a5298);
-  text-align:center;
-  color:white;
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#1e3c72,#2a5298);
+text-align:center;
+color:white;
 }
 
-.form-box{
-  background:#111;
-  width:92%;
-  max-width:340px;
-  margin:20px auto;
-  padding:18px;
-  border-radius:18px;
+.container{
+width:95%;
+max-width:360px;
+margin:20px auto;
+background:#111;
+padding:20px;
+border-radius:15px;
+box-sizing:border-box;
 }
 
 input,select,button{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border-radius:10px;
-  border:none;
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:10px;
+border:none;
+box-sizing:border-box;
 }
 
 button{
-  background:orange;
-  font-weight:bold;
+background:orange;
+font-weight:bold;
+font-size:16px;
 }
 
-#successMessage{
-  display:none;
-  margin-top:20px;
-  font-size:18px;
+#success{
+display:none;
+margin-top:20px;
+font-size:18px;
 }
 </style>
 </head>
@@ -50,10 +53,10 @@ button{
 
 <h2>🎉 Farewell Party 2026 🎉</h2>
 
-<div id="formBox" class="form-box">
+<div id="formBox" class="container">
 
-<input id="name" placeholder="Name">
-<input id="roll" placeholder="Roll Number">
+<input id="name" placeholder="Name" required>
+<input id="roll" placeholder="Roll Number" required>
 
 <select id="class">
 <option>FYBCA</option>
@@ -67,8 +70,8 @@ button{
 <option>TYBBA</option>
 </select>
 
-<input id="email" placeholder="Gmail">
-<input id="phone" placeholder="WhatsApp Number">
+<input id="email" placeholder="Gmail" required>
+<input id="phone" placeholder="WhatsApp Number" required>
 
 <select id="gender">
 <option>Male</option>
@@ -80,11 +83,9 @@ button{
 <button onclick="register()">Register Now</button>
 </div>
 
-<div id="successMessage">
-✅ Registration Completed  <br>
-We invite you to be part of the Farewell Party 2026 and celebrate the journey together."<br>🎉
-  Thankyou<br>
-  firewell Team
+<div id="success">
+✅ Registration Completed  
+See you in Farewell Party 🎉
 </div>
 
 <audio id="sound">
@@ -93,7 +94,7 @@ We invite you to be part of the Farewell Party 2026 and celebrate the journey to
 
 <script>
 var firebaseConfig = {
-apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",We invite you to be part of the Farewell Party 2026 and celebrate the journey together."
+apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
 authDomain: "party-4f9f7.firebaseapp.com",
 databaseURL: "https://party-4f9f7-default-rtdb.firebaseio.com",
 projectId: "party-4f9f7",
@@ -113,6 +114,11 @@ var email=document.getElementById("email").value;
 var phone=document.getElementById("phone").value;
 var gender=document.getElementById("gender").value;
 
+if(name=="" || roll=="" || email=="" || phone==""){
+alert("Please fill all fields");
+return;
+}
+
 firebase.database().ref("students").push({
 name:name,
 roll:roll,
@@ -120,16 +126,17 @@ class:cls,
 email:email,
 phone:phone,
 gender:gender
-});
+}).then(function(){
 
 document.getElementById("formBox").style.display="none";
-document.getElementById("successMessage").style.display="block";
+document.getElementById("success").style.display="block";
 document.getElementById("sound").play();
 
 setTimeout(function(){
 location.reload();
 },8000);
 
+});
 }
 </script>
 
