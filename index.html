@@ -4,22 +4,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Farewell Party 2026</title>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 <style>
 body{
   margin:0;
-  font-family:Arial, sans-serif;
+  font-family:Arial;
   background:linear-gradient(135deg,#1e3c72,#2a5298);
   text-align:center;
   color:white;
 }
 
-/* Heading */
-h1{
-  font-size:22px;
-  padding:10px;
-}
-
-/* Form box */
 .form-box{
   background:#111;
   width:92%;
@@ -27,8 +23,6 @@ h1{
   margin:20px auto;
   padding:18px;
   border-radius:18px;
-  box-shadow:0 0 20px rgba(0,0,0,0.6);
-  box-sizing:border-box;
 }
 
 input,select,button{
@@ -37,45 +31,31 @@ input,select,button{
   margin:8px 0;
   border-radius:10px;
   border:none;
-  font-size:15px;
-  box-sizing:border-box;
 }
 
 button{
   background:orange;
   font-weight:bold;
-  cursor:pointer;
 }
 
-/* Success message */
 #successMessage{
   display:none;
-  width:90%;
-  max-width:350px;
-  margin:20px auto;
+  margin-top:20px;
   font-size:18px;
-  line-height:1.4;
-  word-wrap:break-word;
-  animation:fadeIn 1s ease-in-out;
-}
-
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(20px);}
-  to{opacity:1; transform:translateY(0);}
 }
 </style>
 </head>
 
 <body>
 
-<h1>🎉 Farewell Party 2026 🎉</h1>
+<h2>🎉 Farewell Party 2026 🎉</h2>
 
 <div id="formBox" class="form-box">
 
-<input type="text" placeholder="Name" required>
-<input type="text" placeholder="Roll Number" required>
+<input id="name" placeholder="Name">
+<input id="roll" placeholder="Roll Number">
 
-<select>
+<select id="class">
 <option>FYBCA</option>
 <option>SYBCA</option>
 <option>TYBCA</option>
@@ -87,57 +67,71 @@ button{
 <option>TYBBA</option>
 </select>
 
-<input type="email" placeholder="Gmail" required>
-<input type="tel" placeholder="WhatsApp Number" required>
+<input id="email" placeholder="Gmail">
+<input id="phone" placeholder="WhatsApp Number">
 
-<select>
+<select id="gender">
 <option>Male</option>
 <option>Female</option>
 </select>
 
-<input type="text" value="2026" readonly>
+<input value="2026" readonly>
 
 <button onclick="register()">Register Now</button>
-
 </div>
 
 <div id="successMessage">
-✅ Registration Completed<br>
-  We invite you to be part of the Farewell Party 2026 and celebrate the journey together."
-  <br>
- Thank you<br>
- firewell Team
- 
- 🎉
+✅ Registration Completed  <br>
+We invite you to be part of the Farewell Party 2026 and celebrate the journey together."<br>🎉
+  Thankyou<br>
+  firewell Team
 </div>
 
-<!-- Sound -->
-<audio id="successSound" preload="auto">
-<source src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" type="audio/mpeg">
+<audio id="sound">
+<source src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3">
 </audio>
 
 <script>
+var firebaseConfig = {
+apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",We invite you to be part of the Farewell Party 2026 and celebrate the journey together."
+authDomain: "party-4f9f7.firebaseapp.com",
+databaseURL: "https://party-4f9f7-default-rtdb.firebaseio.com",
+projectId: "party-4f9f7",
+storageBucket: "party-4f9f7.firebasestorage.app",
+messagingSenderId: "615273128511",
+appId: "1:615273128511:web:d99127fa938f13658c4e8a"
+};
+
+firebase.initializeApp(firebaseConfig);
+
 function register(){
 
-  // Form hide
-  document.getElementById("formBox").style.display="none";
+var name=document.getElementById("name").value;
+var roll=document.getElementById("roll").value;
+var cls=document.getElementById("class").value;
+var email=document.getElementById("email").value;
+var phone=document.getElementById("phone").value;
+var gender=document.getElementById("gender").value;
 
-  // Message show
-  document.getElementById("successMessage").style.display="block";
+firebase.database().ref("students").push({
+name:name,
+roll:roll,
+class:cls,
+email:email,
+phone:phone,
+gender:gender
+});
 
-  // Sound play (user click ke baad guaranteed chalega)
-  var sound=document.getElementById("successSound");
-  sound.currentTime = 0;
-  sound.play();
+document.getElementById("formBox").style.display="none";
+document.getElementById("successMessage").style.display="block";
+document.getElementById("sound").play();
 
-  // 8 second baad sab reset
-  setTimeout(function(){
-    document.getElementById("successMessage").style.display="none";
-    document.getElementById("formBox").style.display="block";
-  },8000);
+setTimeout(function(){
+location.reload();
+},8000);
+
 }
 </script>
 
 </body>
 </html>
-
