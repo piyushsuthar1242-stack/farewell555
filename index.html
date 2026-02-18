@@ -2,9 +2,13 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Farewell Party 2026</title>
+<title>Farewell Party Registration</title>
 
 <style>
+*{
+box-sizing:border-box;
+}
+
 body{
 margin:0;
 font-family:Arial;
@@ -15,6 +19,7 @@ text-align:center;
 
 .container{
 max-width:350px;
+width:95%;
 margin:40px auto;
 background:#000;
 padding:20px;
@@ -87,13 +92,13 @@ text-align:center;
 <input type="text" value="2026" readonly>
 
 <button onclick="register()">Register Now</button>
+
 </div>
 
 <div id="successScreen">
 <h2>🎉 Registration Completed 🎉</h2>
 <p>Thank You For Registration</p>
-<p>We invite you to be part of the Farewell Party 2026 and celebrate the journey together.</p>
-<p>Farewell Team</p>
+<p>See You In Farewell Party 2026</p>
 </div>
 
 <audio id="successSound">
@@ -130,19 +135,16 @@ alert("All fields required");
 return;
 }
 
-// duplicate check
-db.collection("students")
-.where("email","==",email)
-.get()
+// duplicate email check
+db.collection("students").where("email","==",email).get()
 .then(snapshot=>{
 if(!snapshot.empty){
 alert("Email already registered");
 return;
 }
 
-db.collection("students")
-.where("phone","==",phone)
-.get()
+// duplicate phone check
+db.collection("students").where("phone","==",phone).get()
 .then(snapshot2=>{
 if(!snapshot2.empty){
 alert("Number already registered");
@@ -166,6 +168,11 @@ document.getElementById("successScreen").style.display="flex";
 let sound=document.getElementById("successSound");
 sound.currentTime=0;
 sound.play().catch(()=>{});
+
+setTimeout(()=>{
+document.getElementById("successScreen").style.display="none";
+document.getElementById("formBox").style.display="block";
+},8000);
 
 });
 });
