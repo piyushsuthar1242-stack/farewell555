@@ -2,125 +2,139 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard</title>
+<title>Admin Panel</title>
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:#f1f3f6;
-}
-
-.sidebar{
-position:fixed;
-left:0;
-top:0;
-width:220px;
-height:100%;
-background:#1e2a38;
+font-family:Segoe UI,Arial;
+background:linear-gradient(135deg,#141e30,#243b55);
 color:white;
-padding:20px;
 }
 
-.sidebar h2{margin-bottom:20px;}
-
-.main{
-margin-left:240px;
-padding:20px;
+/* HEADER */
+.header{
+padding:15px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+background:rgba(0,0,0,0.3);
+backdrop-filter:blur(10px);
 }
 
-.cards{
+/* MAIN BOX */
+.container{
+max-width:1100px;
+margin:20px auto;
+background:rgba(255,255,255,0.05);
+padding:20px;
+border-radius:12px;
+box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+/* FILTER BAR */
+.controls{
 display:flex;
 flex-wrap:wrap;
-gap:15px;
-margin-bottom:20px;
+gap:10px;
+margin-bottom:15px;
 }
 
-.card{
-flex:1 1 150px;
-padding:20px;
+.controls input,
+.controls select,
+.controls button{
+padding:10px;
+border:none;
 border-radius:8px;
+font-size:14px;
+}
+
+.controls button{
+background:#00c6ff;
 color:white;
 cursor:pointer;
-font-size:16px;
-text-align:center;
+font-weight:bold;
 }
 
-.card:nth-child(1){background:#3498db;}
-.card:nth-child(2){background:#9b59b6;}
-.card:nth-child(3){background:#e67e22;}
-.card:nth-child(4){background:#27ae60;}
-.card:nth-child(5){background:#e74c3c;}
-.card:nth-child(6){background:#16a085;}
-.card:nth-child(7){background:#2c3e50;}
-.card:nth-child(8){background:#8e44ad;}
-.card:nth-child(9){background:#d35400;}
+/* TOTAL */
+.total{
+margin-bottom:15px;
+font-size:18px;
+}
 
+/* TABLE */
 table{
 width:100%;
 border-collapse:collapse;
-background:white;
+background:rgba(0,0,0,0.4);
+border-radius:10px;
+overflow:hidden;
 }
 
-th,td{
+th{
+background:#00c6ff;
+color:black;
 padding:10px;
-border-bottom:1px solid #ddd;
 }
 
-.delete{
-background:red;
-color:white;
+td{
+padding:10px;
+text-align:center;
+border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+tr:hover{
+background:rgba(255,255,255,0.05);
+}
+
+.deleteBtn{
+background:#ff4b5c;
 border:none;
+color:white;
 padding:6px 10px;
-border-radius:5px;
+border-radius:6px;
 cursor:pointer;
 }
 
-.download{
-background:#3498db;
-color:white;
-padding:8px 15px;
-border:none;
-border-radius:5px;
-margin-bottom:15px;
-cursor:pointer;
+@media(max-width:600px){
+.controls{
+flex-direction:column;
 }
-
-@media(max-width:768px){
-.sidebar{width:100%;height:auto;position:relative;}
-.main{margin-left:0;}
-.cards{flex-direction:column;}
 }
 </style>
 </head>
 
 <body>
 
-<div class="sidebar">
-<h2>Admin Panel</h2>
-<p>Student Dashboard</p>
+<div class="header">Student Admin Dashboard</div>
+
+<div class="container">
+
+<div class="total">
+Total Students: <span id="totalCount">0</span>
 </div>
 
-<div class="main">
+<div class="controls">
+<input type="text" id="search" placeholder="Search name..." onkeyup="filterData()">
 
-<h2>Total Students: <span id="total">0</span></h2>
+<select id="classFilter" onchange="filterData()">
+<option value="">All Classes</option>
+<option>FYBCA</option>
+<option>SYBCA</option>
+<option>TYBCA</option>
+<option>FYBBA</option>
+<option>SYBBA</option>
+<option>TYBBA</option>
+<option>FYBCOM</option>
+<option>SYBCOM</option>
+<option>TYBCOM</option>
+</select>
 
-<div class="cards">
-<div class="card" onclick="filterClass('FYBCA')">FYBCA</div>
-<div class="card" onclick="filterClass('SYBCA')">SYBCA</div>
-<div class="card" onclick="filterClass('TYBOM')">TYBOM</div>
-<div class="card" onclick="filterClass('FYBBA')">FYBBA</div>
-<div class="card" onclick="filterClass('SYBBA')">SYBBA</div>
-<div class="card" onclick="filterClass('TYBAA')">TYBAA</div>
-<div class="card" onclick="filterClass('FYBCOM')">FYBCOM</div>
-<div class="card" onclick="filterClass('SYBOM')">SYBOM</div>
-<div class="card" onclick="filterClass('TYBCOM')">TYBCOM</div>
+<button onclick="exportExcel()">Download Excel</button>
 </div>
-
-<button class="download" onclick="downloadExcel()">Download Excel</button>
 
 <table>
 <thead>
@@ -133,12 +147,14 @@ cursor:pointer;
 <th>Delete</th>
 </tr>
 </thead>
-<tbody id="data"></tbody>
+<tbody id="tableBody"></tbody>
 </table>
 
 </div>
 
 <script>
+
+/* FIREBASE CONFIG */
 const firebaseConfig = {
 apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
 authDomain: "party-4f9f7.firebaseapp.com",
@@ -153,20 +169,21 @@ const db = firebase.firestore();
 
 let allData=[];
 
-function loadData(){
+/* LOAD DATA */
 db.collection("students").onSnapshot(snapshot=>{
 allData=[];
 snapshot.forEach(doc=>{
-allData.push({id:doc.id,...doc.data()});
+let d=doc.data();
+d.id=doc.id;
+allData.push(d);
 });
-showData(allData);
+renderTable(allData);
+updateTotal(allData);
 });
-}
 
-function showData(data){
+/* TABLE */
+function renderTable(data){
 let html="";
-document.getElementById("total").innerText=data.length;
-
 data.forEach(d=>{
 html+=`
 <tr>
@@ -175,36 +192,53 @@ html+=`
 <td>${d.class}</td>
 <td>${d.email}</td>
 <td>${d.phone}</td>
-<td><button class="delete" onclick="deleteData('${d.id}')">Delete</button></td>
+<td><button class="deleteBtn" onclick="deleteStudent('${d.id}')">Delete</button></td>
 </tr>`;
 });
-
-document.getElementById("data").innerHTML=html;
+document.getElementById("tableBody").innerHTML=html;
 }
 
-function filterClass(cls){
-let filtered=allData.filter(d=>d.class==cls);
-showData(filtered);
-}
-
-function deleteData(id){
+/* DELETE */
+function deleteStudent(id){
+if(confirm("Delete student?")){
 db.collection("students").doc(id).delete();
 }
+}
 
-function downloadExcel(){
+/* FILTER */
+function filterData(){
+let search=document.getElementById("search").value.toLowerCase();
+let cls=document.getElementById("classFilter").value;
+
+let filtered=allData.filter(d=>{
+return (
+d.name.toLowerCase().includes(search) &&
+(cls=="" || d.class==cls)
+);
+});
+renderTable(filtered);
+updateTotal(filtered);
+}
+
+/* TOTAL */
+function updateTotal(data){
+document.getElementById("totalCount").innerText=data.length;
+}
+
+/* EXCEL */
+function exportExcel(){
 let csv="Name,Roll,Class,Email,Phone\n";
 allData.forEach(d=>{
 csv+=`${d.name},${d.roll},${d.class},${d.email},${d.phone}\n`;
 });
-
-let blob=new Blob([csv]);
+let blob=new Blob([csv],{type:"text/csv"});
+let url=window.URL.createObjectURL(blob);
 let a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
+a.href=url;
 a.download="students.csv";
 a.click();
 }
 
-loadData();
 </script>
 
 </body>
