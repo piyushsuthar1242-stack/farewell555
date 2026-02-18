@@ -166,7 +166,7 @@ function renderTable(){
 
 window.deleteStudent = async function(id){
   if(confirm("Delete student?")){
-    await deleteDoc(doc(db,"registrations",id));
+    await deleteDoc(doc(db,"students",id));
   }
 }
 
@@ -183,7 +183,7 @@ function updateCounts(){
 
 createCards();
 
-onSnapshot(collection(db,"registrations"),(snapshot)=>{
+onSnapshot(collection(db,"students"),(snapshot)=>{
  students=[];
  snapshot.forEach(docSnap=>{
    let data=docSnap.data();
@@ -221,3 +221,4 @@ function checkPassword(){
 
 </body>
 </html>
+
