@@ -2,32 +2,44 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel</title>
+<title>Farewell Admin</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <style>
+
 body{
-font-family:Arial;
 margin:0;
-background:#1e3c72;
+font-family:Arial;
+background:linear-gradient(135deg,#1e3c72,#2a5298);
 color:white;
 text-align:center;
 }
 
-.container{
-width:95%;
-max-width:800px;
-margin:auto;
-margin-top:20px;
+/* Login Box */
+#loginBox{
+margin-top:120px;
 }
 
-select{
+input,select,button{
 padding:10px;
+margin:8px;
 border-radius:8px;
 border:none;
-margin:10px;
+}
+
+button{
+background:orange;
+font-weight:bold;
+cursor:pointer;
+}
+
+.container{
+width:95%;
+max-width:900px;
+margin:auto;
+display:none;
 }
 
 table{
@@ -49,18 +61,43 @@ th{
 background:#2a5298;
 color:white;
 }
+
+.deleteBtn{
+background:red;
+color:white;
+padding:5px 10px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+.topBar{
+margin:10px;
+}
+
 </style>
 </head>
 
 <body>
 
-<h2>Farewell Party Admin Panel</h2>
+<h2>🎉 Farewell Party Admin Panel</h2>
 
-<div class="container">
+<!-- LOGIN -->
+<div id="loginBox">
+<input type="password" id="pass" placeholder="Enter Password">
+<br>
+<button onclick="login()">Login</button>
+</div>
 
-<label>Filter by Class:</label>
+<!-- ADMIN PANEL -->
+<div class="container" id="adminPanel">
+
+<div class="topBar">
+
+<input type="text" id="search" placeholder="Search Name" onkeyup="loadData()">
+
 <select id="classFilter" onchange="loadData()">
-<option value="All">All</option>
+<option value="All">All Classes</option>
 <option>FYBCA</option>
 <option>SYBCA</option>
 <option>TYBCA</option>
@@ -72,6 +109,10 @@ color:white;
 <option>TYBBA</option>
 </select>
 
+<button onclick="exportCSV()">Export CSV</button>
+
+</div>
+
 <h3>Total Students: <span id="total">0</span></h3>
 
 <table>
@@ -82,11 +123,11 @@ color:white;
 <th>Class</th>
 <th>Email</th>
 <th>Phone</th>
+<th>Action</th>
 </tr>
 </thead>
 
 <tbody id="tableBody"></tbody>
-
 </table>
 
 </div>
@@ -105,12 +146,29 @@ appId: "1:615273128511:web:d99127fa938f13658c4e8a"
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
+let allData = [];
+
+/* PASSWORD LOGIN */
+function login(){
+let p = document.getElementById("pass").value;
+if(p=="12345"){
+document.getElementById("loginBox").style.display="none";
+document.getElementById("adminPanel").style.display="block";
+loadData();
+}else{
+alert("Wrong Password");
+}
+}
+
+/* LOAD DATA */
 function loadData(){
 
 var filterClass = document.getElementById("classFilter").value;
-var tableBody = document.getElementById("tableBody");
+var search = document.getElementById("search").value.toLowerCase();
 
+var tableBody = document.getElementById("tableBody");
 tableBody.innerHTML="";
+
 let count = 0;
 
 db.collection("students").get().then(snapshot => {
@@ -118,10 +176,13 @@ db.collection("students").get().then(snapshot => {
 snapshot.forEach(doc => {
 
 let data = doc.data();
+data.id = doc.id;
 
-if(filterClass=="All" || data.class==filterClass){
+if((filterClass=="All" || data.class==filterClass) &&
+(data.name.toLowerCase().includes(search))){
 
 count++;
+allData.push(data);
 
 tableBody.innerHTML += `
 <tr>
@@ -130,6 +191,7 @@ tableBody.innerHTML += `
 <td>${data.class}</td>
 <td>${data.email}</td>
 <td>${data.phone}</td>
+<td><button class="deleteBtn" onclick="deleteStudent('${data.id}')">Delete</button></td>
 </tr>
 `;
 
@@ -143,7 +205,32 @@ document.getElementById("total").innerText = count;
 
 }
 
+/* DELETE */
+function deleteStudent(id){
+if(confirm("Delete this student?")){
+db.collection("students").doc(id).delete().then(()=>{
 loadData();
+});
+}
+}
+
+/* EXPORT CSV */
+function exportCSV(){
+
+let csv = "Name,Roll,Class,Email,Phone\n";
+
+document.querySelectorAll("#tableBody tr").forEach(row=>{
+let cols = row.querySelectorAll("td");
+csv += `${cols[0].innerText},${cols[1].innerText},${cols[2].innerText},${cols[3].innerText},${cols[4].innerText}\n`;
+});
+
+let blob = new Blob([csv], { type: 'text/csv' });
+let link = document.createElement("a");
+link.href = URL.createObjectURL(blob);
+link.download = "students.csv";
+link.click();
+
+}
 
 </script>
 
