@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Farewell Party 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+/* Form Box */
+.box{
+  background:#111;
+  padding:25px;
+  border-radius:12px;
+  width:320px;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+  z-index:2;
+}
+
+h2{
+  text-align:center;
+  color:white;
+}
+
+input,select{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:6px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  background:orange;
+  border:none;
+  border-radius:6px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* Full Screen Success */
+.successScreen{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#0f172a;
+  color:white;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  text-align:center;
+  z-index:10;
+}
+
+.successScreen h1{
+  font-size:28px;
+  margin-bottom:10px;
+  animation: pop 0.8s ease;
+}
+
+@keyframes pop{
+  from{transform:scale(0.5);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+/* Confetti */
+.confetti{
+  position:fixed;
+  width:10px;
+  height:10px;
+  top:-10px;
+  animation:fall 3s linear forwards;
+}
+
+@keyframes fall{
+  to{
+    transform:translateY(100vh) rotate(720deg);
+    opacity:0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="box" id="formBox">
+  <h2>🎉 Farewell Party 2026</h2>
+
+  <form id="form">
+    <input type="text" id="name" placeholder="Name" required>
+    <input type="text" id="roll" placeholder="Roll Number" required>
+
+    <select id="course" required>
+      <option value="">Select Course</option>
+      <option>FYBCA</option>
+      <option>SYBCA</option>
+      <option>TYBCA</option>
+    </select>
+
+    <input type="email" id="email" placeholder="Gmail" required>
+    <input type="tel" id="whatsapp" placeholder="WhatsApp Number" required>
+
+    <select id="gender" required>
+      <option value="">Select Gender</option>
+      <option>Male</option>
+      <option>Female</option>
+    </select>
+
+    <button type="submit" id="submitBtn">Register Now</button>
+  </form>
+</div>
+
+<!-- Success Screen -->
+<div id="successScreen" class="successScreen">
+  <h1>Thank you for registration 🎉</h1>
+  <p>See you in farewell party</p>
+  <p>Redirecting...</p>
+</div>
+
+<!-- Optional Sound -->
+<audio id="successSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  query, 
+  where, 
+  getDocs 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
+  authDomain: "party-4f9f7.firebaseapp.com",
+  projectId: "party-4f9f7",
+  storageBucket: "party-4f9f7.firebasestorage.app",
+  messagingSenderId: "615273128511",
+  appId: "1:615273128511:web:d99127fa938f13658c4e8a"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const form = document.getElementById("form");
+const submitBtn = document.getElementById("submitBtn");
+const successScreen = document.getElementById("successScreen");
+const sound = document.getElementById("successSound");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  submitBtn.innerText="Submitting...";
+  submitBtn.disabled=true;
+
+  const name = document.getElementById("name").value;
+  const roll = document.getElementById("roll").value;
+  const course = document.getElementById("course").value;
+  const email = document.getElementById("email").value;
+  const whatsapp = document.getElementById("whatsapp").value;
+  const gender = document.getElementById("gender").value;
+
+  const emailCheck = await getDocs(query(collection(db,"students"), where("email","==",email)));
+  if(!emailCheck.empty){
+    alert("Gmail already registered");
+    submitBtn.innerText="Register Now";
+    submitBtn.disabled=false;
+    return;
+  }
+
+  const mobileCheck = await getDocs(query(collection(db,"students"), where("whatsapp","==",whatsapp)));
+  if(!mobileCheck.empty){
+    alert("WhatsApp already registered");
+    submitBtn.innerText="Register Now";
+    submitBtn.disabled=false;
+    return;
+  }
+
+  await addDoc(collection(db,"students"),{
+    name,roll,course,email,whatsapp,gender,
+    created:new Date()
+  });
+
+  // Show success screen
+  successScreen.style.display="flex";
+  sound.play();
+  createConfetti();
+
+  // Redirect after 5 sec
+  setTimeout(()=>{
+    location.reload();
+  },5000);
+});
+
+
+function createConfetti(){
+  for(let i=0;i<40;i++){
+    const c=document.createElement("div");
+    c.classList.add("confetti");
+    c.style.left=Math.random()*100+"vw";
+    c.style.backgroundColor=
+      ["red","yellow","blue","green","orange"][Math.floor(Math.random()*5)];
+    c.style.animationDuration=(Math.random()*2+2)+"s";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),3000);
+  }
+}
+
+</script>
+
+</body>
+</html>
