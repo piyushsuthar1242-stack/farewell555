@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Farewell Party 2026</title>
+<title>Farewell Party Registration</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -13,16 +13,35 @@ margin:0;
 font-family:Arial;
 background:linear-gradient(135deg,#1e3c72,#2a5298);
 color:white;
-text-align:center;
 }
 
-.form-box{
-background:#111;
+/* Animation Screen */
+#animationScreen{
+position:fixed;
+width:100%;
+height:100%;
+background:#000;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
 padding:20px;
-margin:20px auto;
+box-sizing:border-box;
+}
+
+#animationScreen h1{
+font-size:22px;
+line-height:1.5;
+}
+
+/* Form */
+.container{
+max-width:420px;
+margin:30px auto;
+background:#000;
+padding:20px;
 border-radius:15px;
-width:90%;
-max-width:400px;
+box-sizing:border-box;
 }
 
 input,select,button{
@@ -32,37 +51,47 @@ margin:8px 0;
 border-radius:8px;
 border:none;
 font-size:14px;
+box-sizing:border-box;
 }
 
 button{
 background:orange;
 font-weight:bold;
+cursor:pointer;
 }
 
-#success{
-display:none;
-font-size:18px;
-margin-top:20px;
-animation:fade 1s infinite alternate;
-}
-
-@keyframes fade{
-from{opacity:0.3}
-to{opacity:1}
+h2{
+text-align:center;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🎉 Farewell Party 2026 🎉</h2>
+<!-- Animation -->
+<div id="animationScreen">
+<h1>
+🎉 Farewell Party 2026 🎉<br><br>
+Thanks for your registration<br>
+We invite you to be part of the Farewell Party 2026 and celebrate the journey together."<br>
+  farewell Team
+</h1>
 
-<div id="formArea" class="form-box">
+<audio id="sound" autoplay>
+<source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
+</audio>
 
-<input id="name" placeholder="Name">
-<input id="roll" placeholder="Roll Number">
+</div>
+
+<!-- Registration Form -->
+<div class="container" id="formBox" style="display:none;">
+<h2>Registration</h2>
+
+<input type="text" id="name" placeholder="Name" required>
+<input type="text" id="roll" placeholder="Roll Number" required>
 
 <select id="class">
+<option value="">Select Class</option>
 <option>FYBCA</option>
 <option>SYBCA</option>
 <option>TYBCA</option>
@@ -74,29 +103,29 @@ to{opacity:1}
 <option>TYBBA</option>
 </select>
 
-<input id="email" placeholder="Email">
-<input id="phone" placeholder="WhatsApp Number">
+<input type="email" id="email" placeholder="Gmail" required>
+<input type="text" id="phone" placeholder="WhatsApp Number" required>
 
 <select id="gender">
+<option value="">Select Gender</option>
 <option>Male</option>
 <option>Female</option>
 </select>
 
-<input id="year" value="2026">
+<input type="text" id="year" value="2026" readonly>
 
 <button onclick="register()">Register Now</button>
 
 </div>
 
-<div id="success">
-✅ Registration Completed<br>
-We invite you to be part of the Farewell Party 2026 🎉
-</div>
-
-<audio id="sound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-
 <script>
+/* Animation 8 sec */
+setTimeout(()=>{
+document.getElementById("animationScreen").style.display="none";
+document.getElementById("formBox").style.display="block";
+},8000);
 
+/* Firebase Config */
 var firebaseConfig = {
 apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
 authDomain: "party-4f9f7.firebaseapp.com",
@@ -109,34 +138,57 @@ appId: "1:615273128511:web:d99127fa938f13658c4e8a"
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
+/* Register Function */
 function register(){
 
-var name = document.getElementById("name").value;
-var roll = document.getElementById("roll").value;
-var studentClass = document.getElementById("class").value;
-var email = document.getElementById("email").value;
-var phone = document.getElementById("phone").value;
-var gender = document.getElementById("gender").value;
-var year = document.getElementById("year").value;
+let name=document.getElementById("name").value.trim();
+let roll=document.getElementById("roll").value.trim();
+let cls=document.getElementById("class").value;
+let email=document.getElementById("email").value.trim();
+let phone=document.getElementById("phone").value.trim();
+let gender=document.getElementById("gender").value;
+let year=document.getElementById("year").value;
 
+/* Validation */
+if(!name || !roll || !cls || !email || !phone || !gender){
+alert("Please fill all fields");
+return;
+}
+
+/* Duplicate Check */
+db.collection("students")
+.where("email","==",email)
+.get()
+.then(snapshot=>{
+if(!snapshot.empty){
+alert("This Email already registered");
+return;
+}
+
+db.collection("students")
+.where("phone","==",phone)
+.get()
+.then(snapshot2=>{
+if(!snapshot2.empty){
+alert("This Number already registered");
+return;
+}
+
+/* Save Data */
 db.collection("students").add({
 name:name,
 roll:roll,
-class:studentClass,
+class:cls,
 email:email,
 phone:phone,
 gender:gender,
 year:year
-}).then(function(){
+}).then(()=>{
+alert("Registration Successful");
+document.querySelectorAll("input").forEach(i=>i.value="");
+});
 
-document.getElementById("formArea").style.display="none";
-document.getElementById("success").style.display="block";
-document.getElementById("sound").play();
-
-setTimeout(function(){
-document.getElementById("success").style.display="none";
-document.getElementById("formArea").style.display="block";
-},8000);
+});
 
 });
 
@@ -145,4 +197,3 @@ document.getElementById("formArea").style.display="block";
 
 </body>
 </html>
-
