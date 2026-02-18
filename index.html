@@ -7,6 +7,7 @@
 <style>
 body{
   margin:0;
+  padding:0;
   font-family:Arial, sans-serif;
   background:linear-gradient(135deg,#1e3c72,#2a5298);
   color:white;
@@ -16,25 +17,28 @@ body{
 h1{
   margin-top:20px;
   font-size:22px;
+  padding:0 10px;
 }
 
 .form-box{
   background:#111;
-  width:90%;
-  max-width:320px;
+  width:92%;
+  max-width:340px;
   margin:20px auto;
-  padding:20px;
-  border-radius:15px;
+  padding:18px;
+  border-radius:18px;
   box-shadow:0 0 20px rgba(0,0,0,0.6);
+  box-sizing:border-box;
 }
 
 input,select,button{
   width:100%;
   padding:12px;
   margin:8px 0;
-  border-radius:8px;
+  border-radius:10px;
   border:none;
   font-size:15px;
+  box-sizing:border-box;
 }
 
 button{
@@ -43,16 +47,16 @@ button{
   cursor:pointer;
 }
 
-/* Animation Message */
+/* Success Message */
 #successMessage{
   display:none;
   font-size:20px;
-  margin-top:30px;
-  animation:fadeIn 2s ease-in-out;
+  margin-top:25px;
+  animation:fadeIn 1s ease-in-out;
 }
 
 @keyframes fadeIn{
-  from{opacity:0; transform:translateY(30px);}
+  from{opacity:0; transform:translateY(25px);}
   to{opacity:1; transform:translateY(0);}
 }
 </style>
@@ -71,11 +75,9 @@ button{
 <option>FYBCA</option>
 <option>SYBCA</option>
 <option>TYBCA</option>
-
 <option>FYBCOM</option>
 <option>SYBCOM</option>
 <option>TYBCOM</option>
-
 <option>FYBBA</option>
 <option>SYBBA</option>
 <option>TYBBA</option>
@@ -98,19 +100,18 @@ button{
 <div id="successMessage">
 ✅ Registration Completed  
 <br>
-Your registration has been successfully completed.
+We are happy to invite you to the Farewell Party 🎉
 We invite you to be part of the Farewell Party 2026 and celebrate the journey together."
-firewell Team
-Thank you  
-Farewell Team 🎉
+  Thank you
+  firewell Team
 </div>
 
-<script>
-function playSound(){
-  const audio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAAAA/////wAAAP///wAAAP///wAAAP///wAAAP///wAAAP///wAA");
-  audio.play();
-}
+<!-- Sound -->
+<audio id="successSound">
+<source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
+</audio>
 
+<script>
 function register(){
 
 var name=document.getElementById("name").value;
@@ -129,7 +130,12 @@ document.getElementById("formBox").style.display="none";
 document.getElementById("successMessage").style.display="block";
 
 /* Sound play */
-playSound();
+document.getElementById("successSound").play();
+
+/* 10 sec baad message hide */
+setTimeout(function(){
+document.getElementById("successMessage").style.display="none";
+},10000);
 
 }
 </script>
