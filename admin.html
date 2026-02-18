@@ -2,102 +2,97 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel</title>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<title>Student Admin Dashboard</title>
 
 <style>
 body{
-margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:white;
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  color:white;
 }
 
-.container{
-width:100%;
-min-height:100vh;
-padding:15px;
-box-sizing:border-box;
-}
-
-h2{text-align:center;margin-top:10px;}
+.container{padding:15px; display:none;}
+h2{text-align:center;}
 
 .cards{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-margin:15px 0;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:10px;
+  margin-bottom:15px;
 }
 
 .card{
-padding:12px;
-border-radius:8px;
-text-align:center;
-cursor:pointer;
-background:linear-gradient(45deg,#00c6ff,#0072ff);
-font-weight:bold;
-}
-
-.card:hover{opacity:0.8;}
-
-input{
-width:100%;
-padding:10px;
-margin:10px 0;
-border:none;
-border-radius:6px;
-}
-
-button{
-padding:10px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
-.excelBtn{
-background:#00c6ff;
-width:100%;
-font-weight:bold;
-margin-bottom:10px;
+  background:#ffffff20;
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+  cursor:pointer;
 }
 
 table{
-width:100%;
-border-collapse:collapse;
-background:rgba(0,0,0,0.4);
-border-radius:8px;
-overflow:hidden;
+  width:100%;
+  border-collapse:collapse;
+  background:white;
+  color:black;
+  border-radius:10px;
+  overflow:hidden;
 }
 
 th,td{
-padding:8px;
-text-align:center;
-font-size:13px;
+  padding:8px;
+  text-align:center;
+  font-size:14px;
 }
 
-th{background:#00c6ff;color:black;}
+th{background:#2a5298;color:white;}
 
-.deleteBtn{
-background:red;
-color:white;
-padding:5px 8px;
+button{
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.deleteBtn{background:red;color:white;}
+.excelBtn{
+  background:#00c6ff;
+  color:white;
+  margin:10px 0;
+  width:100%;
+  padding:10px;
+  font-size:16px;
+}
+
+.login-box{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.login-box input{
+  padding:10px;
+  margin-right:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="login-box" id="loginBox">
+  <div>
+    <input type="password" id="password" placeholder="Enter Password">
+    <button onclick="checkPassword()">Login</button>
+  </div>
+</div>
+
+<div class="container" id="dashboard">
 
 <h2>Student Admin Dashboard</h2>
 <h3>Total Students: <span id="totalCount">0</span></h3>
 
 <div class="cards" id="classCards"></div>
-
-<input type="text" id="search" placeholder="Search name..." onkeyup="renderData()">
 
 <button class="excelBtn" onclick="downloadExcel()">Download Excel</button>
 
@@ -105,116 +100,131 @@ padding:5px 8px;
 <thead>
 <tr>
 <th>Name</th>
-<th>Roll</th>
 <th>Class</th>
-<th>Email</th>
+<th>Roll</th>
 <th>Phone</th>
+<th>Email</th>
 <th>Delete</th>
 </tr>
 </thead>
-<tbody id="tableBody"></tbody>
+<tbody id="studentTable"></tbody>
 </table>
 
 </div>
 
-<script>
-var firebaseConfig = {
-apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
-authDomain: "party-4f9f7.firebaseapp.com",
-projectId: "party-4f9f7",
-storageBucket: "party-4f9f7.firebasestorage.app",
-messagingSenderId: "615273128511",
-appId: "1:615273128511:web:d99127fa938f13658c4e8a"
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
+  authDomain: "party-4f9f7.firebaseapp.com",
+  projectId: "party-4f9f7",
+  storageBucket: "party-4f9f7.appspot.com",
+  messagingSenderId: "615273128511",
+  appId: "1:615273128511:web:d99127fa938f13658c4e8a"
 };
 
-firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-var classes = [
-"ALL",
-"FYBCA","SYBCA","TYBCA",
-"FYBBA","SYBBA","TYBBA",
-"FYBCOM","SYBCOM","TYBCOM",
-"BBA","BCOM"
-];
+let students=[];
+let selectedClass="ALL";
 
-var allStudents=[];
-var selectedClass="ALL";
+const table=document.getElementById("studentTable");
+const totalCount=document.getElementById("totalCount");
+const classCards=document.getElementById("classCards");
+
+const classes=["ALL","FYBCA","SYBCA","TYBCA","FYBBA","SYBBA","TYBBA","FYBCOM","SYBCOM","TYBCOM","BBA","BCOM"];
 
 function createCards(){
-let div=document.getElementById("classCards");
-div.innerHTML="";
-classes.forEach(c=>{
-div.innerHTML+=`<div class="card" onclick="selectClass('${c}')">${c}</div>`;
-});
+ classCards.innerHTML="";
+ classes.forEach(cls=>{
+   let div=document.createElement("div");
+   div.className="card";
+   div.innerHTML=`${cls}<br><b id="count-${cls}">0</b>`;
+   div.onclick=()=>{selectedClass=cls;renderTable();}
+   classCards.appendChild(div);
+ });
 }
 
-function selectClass(cls){
-selectedClass=cls;
-renderData();
+function renderTable(){
+ table.innerHTML="";
+ let filtered=students.filter(s=>{
+   if(selectedClass==="ALL") return true;
+   return s.className===selectedClass;
+ });
+
+ filtered.forEach(s=>{
+   table.innerHTML+=`
+   <tr>
+   <td>${s.name||""}</td>
+   <td>${s.className||""}</td>
+   <td>${s.roll||""}</td>
+   <td>${s.phone||""}</td>
+   <td>${s.email||""}</td>
+   <td><button class="deleteBtn" onclick="deleteStudent('${s.id}')">Delete</button></td>
+   </tr>`;
+ });
+
+ totalCount.innerText=students.length;
 }
 
-function renderData(){
-let body=document.getElementById("tableBody");
-let search=document.getElementById("search").value.toLowerCase();
-body.innerHTML="";
-let count=0;
-
-allStudents.forEach(d=>{
-let studentClass=d.class || "Not Set";
-
-if((selectedClass==="ALL" || studentClass===selectedClass) &&
-(!search || d.name.toLowerCase().includes(search))){
-
-count++;
-
-body.innerHTML+=`
-<tr>
-<td>${d.name || ""}</td>
-<td>${d.roll || ""}</td>
-<td>${studentClass}</td>
-<td>${d.email || ""}</td>
-<td>${d.phone || ""}</td>
-<td><button class="deleteBtn" onclick="deleteData('${d.id}')">Delete</button></td>
-</tr>`;
-}
-});
-
-document.getElementById("totalCount").innerText=count;
+window.deleteStudent = async function(id){
+  if(confirm("Delete student?")){
+    await deleteDoc(doc(db,"registrations",id));
+  }
 }
 
-function deleteData(id){
-if(confirm("Delete student?")){
-db.collection("students").doc(id).delete();
+function updateCounts(){
+ classes.forEach(cls=>{
+   if(cls==="ALL"){
+     document.getElementById(`count-${cls}`).innerText=students.length;
+   }else{
+     let count=students.filter(s=>s.className===cls).length;
+     document.getElementById(`count-${cls}`).innerText=count;
+   }
+ });
 }
-}
-
-function downloadExcel(){
-let csv="Name,Roll,Class,Email,Phone\n";
-allStudents.forEach(d=>{
-let studentClass=d.class || "Not Set";
-csv+=`${d.name},${d.roll},${studentClass},${d.email},${d.phone}\n`;
-});
-
-let blob=new Blob([csv]);
-let a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download="students.csv";
-a.click();
-}
-
-/* 🔥 REALTIME LISTENER */
-db.collection("students").onSnapshot(snapshot=>{
-allStudents=[];
-snapshot.forEach(doc=>{
-let data=doc.data();
-data.id=doc.id;
-allStudents.push(data);
-});
-renderData();
-});
 
 createCards();
+
+onSnapshot(collection(db,"registrations"),(snapshot)=>{
+ students=[];
+ snapshot.forEach(docSnap=>{
+   let data=docSnap.data();
+   data.id=docSnap.id;
+   students.push(data);
+ });
+ updateCounts();
+ renderTable();
+});
+
+window.downloadExcel=function(){
+ let csv="Name,Class,Roll,Phone,Email\n";
+ students.forEach(s=>{
+   csv+=`${s.name},${s.className},${s.roll},${s.phone},${s.email}\n`;
+ });
+
+ let blob=new Blob([csv],{type:"text/csv"});
+ let a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="students.csv";
+ a.click();
+}
+
+</script>
+
+<script>
+function checkPassword(){
+  if(document.getElementById("password").value==="admin123"){
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("dashboard").style.display="block";
+  }else{
+    alert("Wrong Password");
+  }
+}
 </script>
 
 </body>
