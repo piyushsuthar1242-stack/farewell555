@@ -43,7 +43,7 @@ cursor:pointer;
 }
 
 #successScreen{
-display:none;
+display:none;   /* IMPORTANT */
 position:fixed;
 top:0;
 left:0;
@@ -51,7 +51,6 @@ width:100%;
 height:100%;
 background:black;
 color:white;
-display:flex;
 justify-content:center;
 align-items:center;
 flex-direction:column;
@@ -141,7 +140,6 @@ alert("All fields required");
 return;
 }
 
-// duplicate email check
 db.collection("students").where("email","==",email).get()
 .then(snapshot=>{
 if(!snapshot.empty){
@@ -149,7 +147,6 @@ alert("Email already registered");
 return;
 }
 
-// duplicate phone check
 db.collection("students").where("phone","==",phone).get()
 .then(snapshot2=>{
 if(!snapshot2.empty){
@@ -157,7 +154,6 @@ alert("Number already registered");
 return;
 }
 
-// save data
 db.collection("students").add({
 name:name,
 roll:roll,
@@ -179,7 +175,10 @@ sound.play().catch(()=>{});
 setTimeout(()=>{
 document.getElementById("successScreen").style.display="none";
 document.getElementById("formBox").style.display="block";
-location.reload();
+document.getElementById("name").value="";
+document.getElementById("roll").value="";
+document.getElementById("email").value="";
+document.getElementById("phone").value="";
 },8000);
 
 });
