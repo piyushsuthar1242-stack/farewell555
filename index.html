@@ -167,14 +167,16 @@ time:Date.now()
 }).then(()=>{
 
 // ✅ Send Confirmation Email (Correct Template Variables)
-emailjs.send("service_u9fxtdh","lw87uhg",{
-to_email: email,
-name: name,
-to_gmail: email
-}).then(function(){
-console.log("Email Sent Successfully");
-}).catch(function(error){
-console.log("Email Failed:", error);
+emailjs.send("service_u9fxtdh", "lw87uhg", {
+    to_email: email,
+    name: name,
+    to_gmail: email
+}, "1TcxHj09QPoXyiJkM")
+.then(function(response) {
+    console.log("SUCCESS!", response.status, response.text);
+})
+.catch(function(error) {
+    console.log("FAILED...", error);
 });
 
 document.getElementById("formBox").style.display="none";
@@ -198,3 +200,4 @@ document.getElementById("formBox").style.display="block";
 
 </body>
 </html>
+
