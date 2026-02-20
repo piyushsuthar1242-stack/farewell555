@@ -1,13 +1,10 @@
-
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Farewell Party Registration</title>
 
 <style>
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
 body{
 margin:0;
@@ -63,11 +60,12 @@ text-align:center;
 <body>
 
 <h2> Farewell Party...🥂 </h2>
+
 <div class="container" id="formBox">
 <input type="text" id="name" placeholder="Name" required>
 <input type="text" id="roll" placeholder="Roll Number" required>
-<select id="Class">
-<option>Class</option>
+
+<select id="className">
 <option>FYBCA</option>
 <option>SYBCA</option>
 <option>TYBCA</option>
@@ -90,24 +88,31 @@ text-align:center;
 <input type="text" value="2026" readonly>
 
 <button onclick="register()">Register Now</button>
-
 </div>
 
-<div id="SuccessScreen">
+<div id="successScreen">
 <h2>🎉 Registration Completed 🎉</h2>
 <p>Thank You For Registration</p>
-<p>Join us at Farewell Party 2026 as we celebrate the end of a chapter and the beginning of new dreams."</p>
-  farewell Team..
+<p>See you at Farewell Party 2026 🎊</p>
 </div>
 
 <audio id="successSound">
 <source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
 </audio>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
 <script>
+
+// 🔥 EmailJS Init
+emailjs.init("1TcxHj09QPoXyiJkM");
+
+// Firebase Config
 const firebaseConfig = {
 apiKey: "AIzaSyBIdKRuJo_oSR-PV4K4svr9YojA7g-Vgj4",
 authDomain: "party-4f9f7.firebaseapp.com",
@@ -134,7 +139,7 @@ alert("All fields required");
 return;
 }
 
-// duplicate email check
+// Duplicate Email Check
 db.collection("students").where("email","==",email).get()
 .then(snapshot=>{
 if(!snapshot.empty){
@@ -142,7 +147,7 @@ alert("Email already registered");
 return;
 }
 
-// duplicate phone check
+// Duplicate Phone Check
 db.collection("students").where("phone","==",phone).get()
 .then(snapshot2=>{
 if(!snapshot2.empty){
@@ -150,7 +155,7 @@ alert("Number already registered");
 return;
 }
 
-// save data
+// Save Data
 db.collection("students").add({
 name:name,
 roll:roll,
@@ -160,6 +165,17 @@ phone:phone,
 gender:gender,
 time:Date.now()
 }).then(()=>{
+
+// ✅ Send Confirmation Email (Correct Template Variables)
+emailjs.send("service_u9fxtdh","lw87uhg",{
+to_email: email,
+name: name,
+to_gmail: email
+}).then(function(){
+console.log("Email Sent Successfully");
+}).catch(function(error){
+console.log("Email Failed:", error);
+});
 
 document.getElementById("formBox").style.display="none";
 document.getElementById("successScreen").style.display="flex";
@@ -177,11 +193,8 @@ document.getElementById("formBox").style.display="block";
 });
 });
 }
+
 </script>
 
 </body>
 </html>
-
-
-
-
